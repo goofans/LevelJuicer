@@ -6,10 +6,13 @@ extends Node2D
 
 		# - VARIABLES -
 	# FILES
+var gameFolder: String
 var data: Dictionary # Level data
 var file: FileAccess # File access
 var pre_path: String
 @onready var file_dialog: FileDialog = $Level_FILE
+@onready var game_dialog: FileDialog = $Game_FILE
+
 
 var item_xml: Dictionary # Item XML
 
@@ -58,11 +61,51 @@ var uid_increment: int = 100000 # Starting UID to increment for each ball
 	# MAIN
 func _ready() -> void: # Defaults
 	set_process(false)
-	file_dialog.visible = true # So it isn't in the way in the editor
+	
+	if (!gameFolder):
+		game_dialog.title = "Select World of Goo 2's Executable"
+		
+		if (OS.get_name() == "Windows"):
+			game_dialog.add_filter("*.exe")
+			
+		if (OS.get_name() == "macOS"):
+			game_dialog.add_filter("*.app")
+			
+		game_dialog.visible = true # So it isn't in the way in the editor
+	
+	else:
+		file_dialog.set_current_dir(gameFolder + "res/levels")
+		file_dialog.title = "Open a File"
+		file_dialog.add_filter("*.wog2")
+		file_dialog.visible = true
+
 	remove_child(menu)
 
 
 	# FILES
+func _Game_Selected(path: String) -> void:
+	gameFolder = path
+	
+	# The executable name is different depending if the game is on EGS or not
+	if (OS.get_name() == "Windows"):
+		gameFolder = gameFolder.replace("World of Goo 2.exe", "game/")
+		gameFolder = gameFolder.replace("WorldOfGoo2.exe", "game/")
+		
+	if (OS.get_name() == "macOS"):
+		gameFolder = gameFolder.replace("World of Goo 2.app", "game/")
+		gameFolder = gameFolder.replace("WorldOfGoo2.app", "game/")
+	# I gotta confirm if this is right for Linux
+	
+	if (OS.get_name() == "Linux"):
+		gameFolder = gameFolder.replace("World of Goo 2", "game/")
+		gameFolder = gameFolder.replace("WorldOfGoo2", "game/")
+		
+	game_dialog.visible = false
+	file_dialog.set_current_dir(gameFolder + "res/levels")
+	file_dialog.add_filter("*.wog2")
+	file_dialog.visible = true
+	
+
 func _Level_Selected(path: String) -> void: # User selected a level
 	pre_path = path # Save path for saving the file
 	file = FileAccess.open(path, FileAccess.READ)
@@ -75,7 +118,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		if ball.uid > uid_increment: uid_increment = ball.uid + 1
 			# More detailed ball for editor use
 		ball_uids[ball.uid] = {
-			ball_ref = ball,  # Original ball
+			ball_ref = ball, # Original ball
 			color = Globals.ball_details[ball.typeEnum].color, # Editor color
 			strands = [] # Connections
 		}
@@ -88,8 +131,8 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	var item_data: Dictionary # Item name from .wog2
 	var node_name: String # Name of current node in XML
 	var xml: XMLParser = XMLParser.new()
-	var idprefix:String
-	xml.open("/Program Files/World of Goo 2/game/res/items/images/_resources.xml")
+	var idprefix: String
+	xml.open(gameFolder + "res/items/images/_resources.xml")
 	
 	for item: Dictionary in data.items: # Create all items
 		sprite = Globals.item_scene.instantiate() # Create item
@@ -99,7 +142,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		sprite.rotation = -item.rotation
 		
 			# ITEM FILE
-		file = FileAccess.open("/Program Files/World of Goo 2/game/res/items/" + item.type + ".wog2", FileAccess.READ)
+		file = FileAccess.open(gameFolder + "res/items/" + item.type + ".wog2", FileAccess.READ)
 		item_data = JSON.parse_string(file.get_as_text())
 		file = null
 		
@@ -117,7 +160,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 							node_name = object.name.replace(idprefix, "")
 							for idx: int in range(xml.get_attribute_count()):
 								if xml.get_attribute_value(idx) == node_name:
-									sprite.texture = BOY_IMAGE.convert_texture("/Program Files/World of Goo 2/game/res/items/images/" + xml.get_attribute_value(idx + 1) + ".image")
+									sprite.texture = BOY_IMAGE.convert_texture(gameFolder + "res/items/images/" + xml.get_attribute_value(idx + 1) + ".image")
 	
 	
 	set_process(true) # Start processing input and drawing frames
@@ -217,7 +260,6 @@ func _draw() -> void:
 			draw_circle(ball_pos, 5.0, cur_color) # Draw circle
 
 
-
 	# Process every frame
 func _process(_delta: float) -> void:
 	mouse_pos = get_global_mouse_position()
@@ -286,7 +328,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				item.position = Vector2(item_data.pos.x, -item_data.pos.y) * zoom
 
 
-
 	# UI
 func _Save_Pressed() -> void: # Save pressed
 	file = FileAccess.open(pre_path, FileAccess.WRITE)
@@ -305,7 +346,6 @@ func _line_mode_pressed() -> void: # Switched to line mode
 
 func _file_select_canceled() -> void: # Canceled file select (no file)
 	get_tree().quit()
-
 
 
 	# BALLS
@@ -328,7 +368,7 @@ func new_ball(typeEnum: int) -> void: # Create a ball
 	uid_increment += 1
 	
 	ball_uids[held_goo.uid] = {
-		ball_ref = held_goo,  # Original ball
+		ball_ref = held_goo, # Original ball
 		color = Globals.ball_details[held_goo.typeEnum].color, # Editor color
 		strands = [] # Connections
 	}

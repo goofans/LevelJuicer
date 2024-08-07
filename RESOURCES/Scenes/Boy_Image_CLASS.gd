@@ -25,12 +25,15 @@ static func convert_texture(filePath:String) -> ImageTexture:
 	var _decompressedMaskSize:int = file.get_32()
 	var _ktxCompressedData:PackedByteArray = file.get_buffer(_ktxCompressedSize)
 	
-		# Decompress ktx Data
+	# Decompress ktx Data
 	var _ktxDecompressedData:PackedByteArray = _ktxCompressedData.decompress(_ktxDecompressedSize, FileAccess.CompressionMode.COMPRESSION_ZSTD)
+	
+	#Grab only the image data of the first Mipmap
 	_ktxDecompressedData = _ktxDecompressedData.slice(68, 68 + (_width * _height * 4))
-		# Turn KTX Data into Image
+	
+	# Turn KTX Data into Image
 	var _ktxImage:Image = Image.create_from_data(_width, _height, false, Image.FORMAT_RGBA8, _ktxDecompressedData)
 	_ktxImage.generate_mipmaps()
 
-		# Return Texture from Image
+	# Return Texture from Image
 	return ImageTexture.create_from_image(_ktxImage)

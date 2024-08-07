@@ -194,9 +194,21 @@ item_0/text = "Yeah!"
 item_1/text = "Nah!"
 item_1/id = 1
 
+[node name="Game_FILE" type="FileDialog" parent="."]
+auto_translate_mode = 1
+title = "Select World of Goo 2's Executable"
+initial_position = 1
+size = Vector2i(700, 400)
+theme = ExtResource("2_0eg1q")
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+
 [connection signal="pressed" from="Control_LAYER/Control/Save_BUTTON" to="." method="_Save_Pressed"]
 [connection signal="pressed" from="Control_LAYER/Control/Load_BUTTON" to="." method="_load_pressed"]
 [connection signal="pressed" from="Control_LAYER/Control/Tool_PANEL/Line_BUTTON" to="." method="_line_mode_pressed"]
 [connection signal="canceled" from="Level_FILE" to="." method="_file_select_canceled"]
 [connection signal="file_selected" from="Level_FILE" to="." method="_Level_Selected"]
 [connection signal="index_pressed" from="Load_POPUP" to="." method="_popup_index_pressed"]
+[connection signal="canceled" from="Game_FILE" to="." method="_file_select_canceled"]
+[connection signal="file_selected" from="Game_FILE" to="." method="_Game_Selected"]
