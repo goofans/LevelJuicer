@@ -6,6 +6,7 @@ extends Node2D
 
 		# - VARIABLES -
 	# FILES
+var settingsFile:FileAccess
 var gameFolder: String
 var data: Dictionary # Level data
 var file: FileAccess # File access
@@ -62,6 +63,13 @@ var uid_increment: int = 100000 # Starting UID to increment for each ball
 func _ready() -> void: # Defaults
 	set_process(false)
 	
+	if (FileAccess.file_exists("user://GameLoc.dat")):
+		settingsFile = FileAccess.open("user://GameLoc.dat", FileAccess.READ)
+		gameFolder = settingsFile.get_as_text()
+		settingsFile.close()
+		print(gameFolder)
+		print(settingsFile.get_path_absolute())
+
 	if (!gameFolder):
 		game_dialog.title = "Select World of Goo 2's Executable"
 		
@@ -94,12 +102,19 @@ func _Game_Selected(path: String) -> void:
 	if (OS.get_name() == "macOS"):
 		gameFolder = gameFolder.replace("World of Goo 2.app", "game/")
 		gameFolder = gameFolder.replace("WorldOfGoo2.app", "game/")
-	# I gotta confirm if this is right for Linux
 	
+	# I gotta confirm if this is right for Linux
 	if (OS.get_name() == "Linux"):
 		gameFolder = gameFolder.replace("World of Goo 2", "game/")
 		gameFolder = gameFolder.replace("WorldOfGoo2", "game/")
-		
+	
+	if (!FileAccess.file_exists("user://GameLoc.dat")):
+		print(gameFolder)
+		settingsFile = FileAccess.open("user://GameLoc.dat", FileAccess.WRITE)
+		settingsFile.store_string(gameFolder)
+		settingsFile.close()
+
+
 	game_dialog.visible = false
 	file_dialog.set_current_dir(gameFolder + "res/levels")
 	file_dialog.add_filter("*.wog2")
