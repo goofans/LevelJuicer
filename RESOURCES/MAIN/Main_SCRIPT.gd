@@ -6,8 +6,8 @@ extends Node2D
 
 		# - VARIABLES -
 	# FILES
-var settingsFile:FileAccess
-var gameFolder: String
+var save_file: FileAccess # Users save data
+var game_path: String # Path to wog2.exe
 var data: Dictionary # Level data
 var file: FileAccess # File access
 var pre_path: String
@@ -63,14 +63,12 @@ var uid_increment: int = 100000 # Starting UID to increment for each ball
 func _ready() -> void: # Defaults
 	set_process(false)
 	
-	if (FileAccess.file_exists("user://GameLoc.dat")):
-		settingsFile = FileAccess.open("user://GameLoc.dat", FileAccess.READ)
-		gameFolder = settingsFile.get_as_text()
-		settingsFile.close()
-		print(gameFolder)
-		print(settingsFile.get_path_absolute())
+	if (FileAccess.file_exists("user://user_data.dat")):
+		save_file = FileAccess.open("user://user_data.dat", FileAccess.READ)
+		game_path = save_file.get_as_text()
+		save_file.close()
 
-	if (!gameFolder):
+	if (!game_path):
 		game_dialog.title = "Select World of Goo 2's Executable"
 		
 		if (OS.get_name() == "Windows"):
@@ -82,7 +80,7 @@ func _ready() -> void: # Defaults
 		game_dialog.visible = true # So it isn't in the way in the editor
 	
 	else:
-		file_dialog.set_current_dir(gameFolder + "res/levels")
+		file_dialog.set_current_dir(game_path + "res/levels")
 		file_dialog.title = "Open a File"
 		file_dialog.add_filter("*.wog2")
 		file_dialog.visible = true
@@ -92,31 +90,30 @@ func _ready() -> void: # Defaults
 
 	# FILES
 func _Game_Selected(path: String) -> void:
-	gameFolder = path
+	game_path = path
 	
 	# The executable name is different depending if the game is on EGS or not
 	if (OS.get_name() == "Windows"):
-		gameFolder = gameFolder.replace("World of Goo 2.exe", "game/")
-		gameFolder = gameFolder.replace("WorldOfGoo2.exe", "game/")
+		game_path = game_path.replace("World of Goo 2.exe", "game/")
+		game_path = game_path.replace("WorldOfGoo2.exe", "game/")
 		
 	if (OS.get_name() == "macOS"):
-		gameFolder = gameFolder.replace("World of Goo 2.app", "game/")
-		gameFolder = gameFolder.replace("WorldOfGoo2.app", "game/")
+		game_path = game_path.replace("World of Goo 2.app", "game/")
+		game_path = game_path.replace("WorldOfGoo2.app", "game/")
 	
 	# I gotta confirm if this is right for Linux
 	if (OS.get_name() == "Linux"):
-		gameFolder = gameFolder.replace("World of Goo 2", "game/")
-		gameFolder = gameFolder.replace("WorldOfGoo2", "game/")
+		game_path = game_path.replace("World of Goo 2", "game/")
+		game_path = game_path.replace("WorldOfGoo2", "game/")
 	
 	if (!FileAccess.file_exists("user://GameLoc.dat")):
-		print(gameFolder)
-		settingsFile = FileAccess.open("user://GameLoc.dat", FileAccess.WRITE)
-		settingsFile.store_string(gameFolder)
-		settingsFile.close()
+		save_file = FileAccess.open("user://GameLoc.dat", FileAccess.WRITE)
+		save_file.store_string(game_path)
+		save_file.close()
 
 
 	game_dialog.visible = false
-	file_dialog.set_current_dir(gameFolder + "res/levels")
+	file_dialog.set_current_dir(game_path + "res/levels")
 	file_dialog.add_filter("*.wog2")
 	file_dialog.visible = true
 	
@@ -147,7 +144,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	var node_name: String # Name of current node in XML
 	var xml: XMLParser = XMLParser.new()
 	var idprefix: String
-	xml.open(gameFolder + "res/items/images/_resources.xml")
+	xml.open(game_path + "res/items/images/_resources.xml")
 	
 	for item: Dictionary in data.items: # Create all items
 		sprite = Globals.item_scene.instantiate() # Create item
@@ -157,7 +154,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		sprite.rotation = -item.rotation
 		
 			# ITEM FILE
-		file = FileAccess.open(gameFolder + "res/items/" + item.type + ".wog2", FileAccess.READ)
+		file = FileAccess.open(game_path + "res/items/" + item.type + ".wog2", FileAccess.READ)
 		item_data = JSON.parse_string(file.get_as_text())
 		file = null
 		
@@ -175,7 +172,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 							node_name = object.name.replace(idprefix, "")
 							for idx: int in range(xml.get_attribute_count()):
 								if xml.get_attribute_value(idx) == node_name:
-									sprite.texture = BOY_IMAGE.convert_texture(gameFolder + "res/items/images/" + xml.get_attribute_value(idx + 1) + ".image")
+									sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + xml.get_attribute_value(idx + 1) + ".image")
 	
 	
 	set_process(true) # Start processing input and drawing frames
