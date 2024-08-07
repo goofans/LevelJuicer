@@ -88,6 +88,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	var item_data: Dictionary # Item name from .wog2
 	var node_name: String # Name of current node in XML
 	var xml: XMLParser = XMLParser.new()
+	var idprefix:String
 	xml.open("/Program Files/World of Goo 2/game/res/items/images/_resources.xml")
 	
 	for item: Dictionary in data.items: # Create all items
@@ -109,8 +110,11 @@ func _Level_Selected(path: String) -> void: # User selected a level
 				while xml.read() != ERR_FILE_EOF: # Read the XML and compare attributes
 					if xml.get_node_type() == XMLParser.NODE_ELEMENT:
 						node_name = xml.get_node_name()
+						if node_name == "SetDefaults":
+							# print(xml.get_named_attribute_value("path"))
+							idprefix = xml.get_named_attribute_value("idprefix")
 						if node_name == "Image":
-							node_name = object.name.replace("IMAGE_ITEM_", "")
+							node_name = object.name.replace(idprefix, "")
 							for idx: int in range(xml.get_attribute_count()):
 								if xml.get_attribute_value(idx) == node_name:
 									sprite.texture = BOY_IMAGE.convert_texture("/Program Files/World of Goo 2/game/res/items/images/" + xml.get_attribute_value(idx + 1) + ".image")
