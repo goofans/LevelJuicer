@@ -1,0 +1,115 @@
+[gd_resource type="Theme" load_steps=12 format=3 uid="uid://dm2ug4t4xvo6c"]
+
+[ext_resource type="FontFile" uid="uid://b5ds50lqyjrdv" path="res://RESOURCES/Scenes/UI/Earths_Mightiest_Bold.ttf" id="1_qukui"]
+[ext_resource type="StyleBox" uid="uid://cba3uo186hfxt" path="res://RESOURCES/Scenes/UI/Textures/Button_STYLEBOX.tres" id="1_rs8tx"]
+[ext_resource type="StyleBox" uid="uid://bx1f15cw13air" path="res://RESOURCES/Scenes/UI/Textures/Panel_STYLEBOX.tres" id="2_afmsl"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c4fv1"]
+bg_color = Color(0.103744, 0.103744, 0.103744, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+corner_detail = 6
+shadow_color = Color(0, 0, 0, 1)
+shadow_size = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f7yxt"]
+bg_color = Color(0.183591, 0.18359, 0.18359, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.111197, 0.111197, 0.111197, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+corner_detail = 6
+shadow_color = Color(0.109804, 0.109804, 0.109804, 1)
+shadow_size = 1
+shadow_offset = Vector2(4, -4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1hnqs"]
+bg_color = Color(0.226708, 0.226707, 0.226707, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.154876, 0.154876, 0.154876, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+corner_detail = 6
+shadow_color = Color(0.152941, 0.152941, 0.152941, 1)
+shadow_size = 1
+shadow_offset = Vector2(4, -4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lt6xh"]
+bg_color = Color(0.099986, 0.099986, 0.099986, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+corner_detail = 6
+shadow_color = Color(0, 0, 0, 1)
+shadow_size = 1
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0l7of"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eniwf"]
+bg_color = Color(0.133197, 0.133196, 0.133196, 1)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.133333, 0.133333, 0.133333, 1)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fnexn"]
+bg_color = Color(0.160784, 0.160784, 0.160784, 1)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.160784, 0.160784, 0.160784, 1)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rii8k"]
+bg_color = Color(0.144, 0.144, 0.144, 0.5)
+
+[resource]
+default_font = ExtResource("1_qukui")
+default_font_size = 30
+Button/colors/font_color = Color(1, 1, 1, 1)
+Button/constants/align_to_largest_stylebox = 1
+Button/constants/h_separation = 15
+Button/constants/outline_size = 10
+Button/styles/disabled = SubResource("StyleBoxFlat_c4fv1")
+Button/styles/focus = SubResource("StyleBoxFlat_f7yxt")
+Button/styles/hover = SubResource("StyleBoxFlat_1hnqs")
+Button/styles/normal = ExtResource("1_rs8tx")
+Button/styles/pressed = SubResource("StyleBoxFlat_lt6xh")
+CheckBox/styles/disabled = SubResource("StyleBoxEmpty_0l7of")
+CheckBox/styles/focus = SubResource("StyleBoxEmpty_0l7of")
+CheckBox/styles/hover = SubResource("StyleBoxEmpty_0l7of")
+CheckBox/styles/hover_pressed = SubResource("StyleBoxEmpty_0l7of")
+CheckBox/styles/normal = SubResource("StyleBoxEmpty_0l7of")
+CheckBox/styles/pressed = SubResource("StyleBoxEmpty_0l7of")
+Label/constants/outline_size = 10
+Panel/styles/panel = ExtResource("2_afmsl")
+PopupMenu/styles/hover = SubResource("StyleBoxFlat_eniwf")
+PopupMenu/styles/panel = SubResource("StyleBoxFlat_fnexn")
+TooltipLabel/constants/outline_size = 10
+TooltipPanel/styles/panel = SubResource("StyleBoxFlat_rii8k")

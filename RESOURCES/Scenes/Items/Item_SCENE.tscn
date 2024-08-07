@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dpsew5huou43r"]
+
+[ext_resource type="Texture2D" uid="uid://bcn6h3qwwx1b3" path="res://Level_Juicer_ICON.png" id="1_fs8x1"]
+
+[node name="Sprite" type="Sprite2D"]
+texture = ExtResource("1_fs8x1")

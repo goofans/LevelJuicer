@@ -1,0 +1,28 @@
+{
+	"typeEnum": 1,
+	"uid": 9999,
+	"pos": {
+		"x": 0,
+		"y": 0
+	},
+	"angle": 0,
+	"discovered": true,
+	"floatingWhileAsleep": true,
+	"interactive": true,
+	"wakeWithLiquid": true,
+	"exitPipeAlert": true,
+	"affectsAutoBounds": true,
+	"launcherLifespanMin": 0,
+	"launcherLifespanMax": 0,
+	"launcherForceFactor": 0.699999988079071,
+	"launcherCanUseBalls": true,
+	"launcherKnockbackFactor": 1,
+	"launcherMaxActive": 50,
+	"launcherBallTypeToGenerate": 8,
+	"thrustForce": 25,
+	"maxVelocity": 0,
+	"stiffness": 1,
+	"filled": true,
+	"detonationRadius": -1,
+	"detonationForce": -1
+}
