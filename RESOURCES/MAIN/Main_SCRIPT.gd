@@ -152,6 +152,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.01 # Set item properties
 		sprite.position = Vector2(item.pos.x, -item.pos.y) * zoom
 		sprite.rotation = -item.rotation
+		sprite.z_index = item.depth
 		
 			# ITEM FILE
 		file = FileAccess.open(game_path + "res/items/" + item.type + ".wog2", FileAccess.READ)
