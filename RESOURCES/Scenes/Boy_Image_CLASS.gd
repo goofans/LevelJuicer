@@ -1,15 +1,16 @@
-	# Boy image utility for converting textures
-extends Node
+# Boy image utility for converting textures
+
+# Some code is inspired by:
+	#GooForge (https://github.com/codeshaunted/gooforge/blob/main/source/gooforge/boy_image.cc) 
+	# WOG2Tools (https://github.com/Nenkai/WoG2Tools/blob/master/WoG2Tools/BoyImage.cs)
 class_name BOY_IMAGE
 
 
-		# - FUNCTIONS -
-	# UTILITIES
 static func convert_texture(filePath:String) -> ImageTexture:
 	var file:FileAccess = FileAccess.open(filePath, FileAccess.READ)
 	
-		# Read boyi file
-		# TODO - Handle Masks
+	# Read boyi file
+	# TODO - Handle Masks
 	var _magic:int = file.get_32()
 	var _version:int = file.get_32()
 	var _width:int = file.get_16()
@@ -29,6 +30,7 @@ static func convert_texture(filePath:String) -> ImageTexture:
 	_ktxDecompressedData = _ktxDecompressedData.slice(68, 68 + (_width * _height * 4))
 		# Turn KTX Data into Image
 	var _ktxImage:Image = Image.create_from_data(_width, _height, false, Image.FORMAT_RGBA8, _ktxDecompressedData)
+	_ktxImage.generate_mipmaps()
 
 		# Return Texture from Image
 	return ImageTexture.create_from_image(_ktxImage)
