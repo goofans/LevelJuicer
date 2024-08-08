@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dnw3bypjqd8rm"]
+
+[node name="Goo_DROPDOWN" type="OptionButton"]
+custom_minimum_size = Vector2(60, 0)
+anchors_preset = 10
+anchor_right = 1.0
+offset_right = -900.0
+offset_bottom = 40.0
+tooltip_text = "Common Goo Ball"
+focus_mode = 1
+icon_alignment = 1

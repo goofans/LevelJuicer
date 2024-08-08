@@ -46,8 +46,11 @@ var line_mode: bool = false # Is drawing lines
 @onready var load_popup: PopupMenu = $Load_POPUP
 
 @onready var menu: CanvasLayer = $Control_LAYER # Entirety of the menu
-@onready var proj_name: Label = $Control_LAYER/Control/Top_Right_PANEL/Name_LABEL # Name of the level
+@onready var proj_name: Label = $Control_LAYER/Control/Name_LABEL # Name of the level
+@onready var act_label: Label = $Control_LAYER/Control/Action_LABEL
 @onready var detail_container: VBoxContainer = $Control_LAYER/Control/Info_PANEL/V_Box_CONTAINER
+
+@onready var terrain_groups: OptionButton = $Control_LAYER/Control/Tool_PANEL/Terrain_Groups_DROPDOWN
 
 
 	# BALLS
@@ -87,8 +90,9 @@ func _ready() -> void: # Defaults
 	# FILES
 func _Game_Selected(path: String) -> void:
 	game_path = path
+	act_label.text = "Level loaded successfully!"
 	
-	# The executable name is different depending if the game is on EGS or not
+		# The executable name is different depending if the game is on EGS or not
 	if (OS.get_name() == "Windows"):
 		game_path = game_path.replace("World of Goo 2.exe", "game/")
 		game_path = game_path.replace("WorldOfGoo2.exe", "game/")
@@ -97,13 +101,13 @@ func _Game_Selected(path: String) -> void:
 		game_path = game_path.replace("World of Goo 2.app", "World of Goo 2.app/Resources/game/")
 		game_path = game_path.replace("WorldOfGoo2.app", "WorldOfGoo2.app/Resources/game/")
 	
-	# I gotta confirm if this is right for Linux
+		# I gotta confirm if this is right for Linux
 	if (OS.get_name() == "Linux"):
 		game_path = game_path.replace("World of Goo 2", "game/")
 		game_path = game_path.replace("WorldOfGoo2", "game/")
 	
-	if (!FileAccess.file_exists("user://save_data.dat")):
-		save_file = FileAccess.open("user://save_data.dat", FileAccess.WRITE)
+	if (!FileAccess.file_exists("user://user_data.dat")):
+		save_file = FileAccess.open("user://user_data.dat", FileAccess.WRITE)
 		save_file.store_string(game_path)
 		save_file.close()
 
@@ -128,11 +132,9 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		ball_uids[ball.uid] = {
 			ball_ref = ball, # Original ball
 			color = Globals.ball_details[ball.typeEnum].color, # Editor color
-			strands = [] # Connections
+			visible = true # Visible in editor
 		}
-		
-		#if ball.uid == 10:
-			#terrain.polygon.append(Vector2(ball.pos.x, -ball.pos.y) * zoom)
+	
 	
 		# ITEMS
 	var item_sprite: Sprite2D
@@ -143,7 +145,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	for item: Dictionary in data.items: # Create all items
 		item_sprite = Globals.item_scene.instantiate() # Create item
 		items.add_child(item_sprite)
-		item_sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.01 # Set item properties
+		item_sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.005 # Set item properties
 		item_sprite.position = Vector2(item.pos.x, -item.pos.y) * zoom
 		item_sprite.rotation = -item.rotation
 		item_sprite.z_index = item.depth
@@ -163,11 +165,15 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	
 		# UI
 	var type: Dictionary
+	var terrain_icon: CompressedTexture2D = preload("res://RESOURCES/Scenes/UI/Textures/Terrain_Groups_TEXTURE.png")
 	for index: int in Globals.ball_details.size(): # Create goo ball buttons
 		type = Globals.ball_details[index]
 		
 		if type.sprite:
 			new_ball_button(index)
+	
+	for index: int in data.terrainGroups.size(): # Terrain groups dropdown
+		terrain_groups.add_icon_item(terrain_icon, "Group " + str(index))
 	
 	proj_name.text = data.title # Set level name
 
@@ -180,15 +186,18 @@ func _draw() -> void:
 	var point_1: Vector2 = Vector2.ZERO
 	var point_2: Vector2 = Vector2.ZERO
 	var cur_uid: Dictionary # Current ball being used for UID/strand connections
+	var p1_ball: Dictionary # Point 1 ball for checking if visible
 	for strand: Dictionary in data.strands:
-			# Point 1
-		cur_uid = ball_uids[strand.ball1UID].ball_ref.pos
-		point_1 = Vector2(cur_uid.x, -cur_uid.y)
-			# Point 2
-		cur_uid = ball_uids[strand.ball2UID].ball_ref.pos
-		point_2 = Vector2(cur_uid.x, -cur_uid.y)
-		
-		draw_line(point_1 * zoom, point_2 * zoom, Globals.ball_details[strand.type].color, 2.0) # Draw strand
+		p1_ball = ball_uids[strand.ball1UID]
+		if p1_ball.visible:
+				# Point 1
+			cur_uid = p1_ball.ball_ref.pos
+			point_1 = Vector2(cur_uid.x, -cur_uid.y)
+				# Point 2
+			cur_uid = ball_uids[strand.ball2UID].ball_ref.pos
+			point_2 = Vector2(cur_uid.x, -cur_uid.y)
+			
+			draw_line(point_1 * zoom, point_2 * zoom, Globals.ball_details[strand.type].color, 2.0) # Draw strand
 	
 	
 		# INPUT WITH DRAWING
@@ -228,31 +237,32 @@ func _draw() -> void:
 	
 		# Iterate through balls
 	for ball: Dictionary in data.balls:
-		ball_pos = Vector2(ball.pos.x, -ball.pos.y) * zoom # Cache ball's visual position
-		details = Globals.ball_details[ball.typeEnum]
-		
-			# Isn't the currently selected goo
-		if (!selected_goo or sel_goo.uid != ball.uid):
-			cur_color = Color.WHITE if details.sprite else details.color
-		else: cur_color = select_color
-		
-			# Cursor is not holding or hovering over any goo
-		if (!holding_goo or line_mode) and !hovering_goo:
-			dist_to_cur = mouse_pos.distance_to(ball_pos) # Get distance to mouse
+		if ball_uids[ball.uid].visible: # If ball is visible in editor
+			ball_pos = Vector2(ball.pos.x, -ball.pos.y) * zoom # Cache ball's visual position
+			details = Globals.ball_details[ball.typeEnum]
 			
-				# Cursor is over ball, be selected
-			if dist_to_cur < 12.0:
-					# Set as hovered
-				cur_color = select_color
-				hovered_goo = ball
-				hovering_goo = true
-		
-		
-			# Draw ball
-		if details["sprite"]: # Draw texture
-			draw_texture(details.sprite, ball_pos - details.sprite.get_size() * 0.5, cur_color)
-		else: # Draw color if has no texture
-			draw_circle(ball_pos, 5.0, cur_color) # Draw circle
+				# Isn't the currently selected goo
+			if (!selected_goo or sel_goo.uid != ball.uid):
+				cur_color = Color.WHITE if details.sprite else details.color
+			else: cur_color = select_color
+			
+				# Cursor is not holding or hovering over any goo
+			if (!holding_goo or line_mode) and !hovering_goo:
+				dist_to_cur = mouse_pos.distance_to(ball_pos) # Get distance to mouse
+				
+					# Cursor is over ball, be selected
+				if dist_to_cur < 12.0:
+						# Set as hovered
+					cur_color = select_color
+					hovered_goo = ball
+					hovering_goo = true
+			
+			
+				# Draw ball
+			if details["sprite"]: # Draw texture
+				draw_texture(details.sprite, ball_pos - details.sprite.get_size() * 0.5, cur_color)
+			else: # Draw color if has no texture
+				draw_circle(ball_pos, 5.0, cur_color) # Draw circle
 
 
 	# Process every frame
@@ -287,14 +297,16 @@ func _process(_delta: float) -> void:
 	elif Input.is_action_pressed(&"Right_Click") and hovering_goo and not holding_goo:
 		var strands_2_free: Array[Dictionary] = []
 		
+			# Delete ball
 		for strand: Dictionary in data.strands: # Check all strands
 			if hovered_goo.uid == strand.ball1UID or hovered_goo.uid == strand.ball2UID: # strand
 				strands_2_free.append(strand)
 		for strand: Dictionary in strands_2_free: # Delete queued strands
 			data.strands.erase(strand)
 		
+		act_label.text = "Ball deleted!"
+		data.terrainBalls.erase(data.balls.find(hovered_goo)) # Remove from terrain balls
 		data.balls.erase(hovered_goo) # Erase goo ball
-	
 	
 	queue_redraw()
 
@@ -319,15 +331,19 @@ func _unhandled_input(event: InputEvent) -> void:
 			for index: int in data.items.size(): # Change position and size of sprites
 				item = items_nodes[index]
 				item_data = data.items[index] # This is the worst the shitcode gets I swear
-				item.scale = Vector2(item_data.scale.x, item_data.scale.y) * zoom * 0.01
+				item.scale = Vector2(item_data.scale.x, item_data.scale.y) * zoom * 0.005
 				item.position = Vector2(item_data.pos.x, -item_data.pos.y) * zoom
 
 
 	# UI
 func _Save_Pressed() -> void: # Save pressed
 	file = FileAccess.open(pre_path, FileAccess.WRITE)
-	file.store_line(JSON.stringify(data, "	", false))
-	file.close()
+	if file:
+		file.store_line(JSON.stringify(data, "	", false))
+		file.close()
+		act_label.text = "Level saved to " + pre_path + " successfully!"
+	else:
+		act_label.text = "ERROR! - Failed to save! File path changed or insufficient priviledges"
 
 func _load_pressed() -> void: # Load pressed
 	load_popup.visible = true
@@ -343,9 +359,11 @@ func _file_select_canceled() -> void: # Canceled file select (no file)
 	# MODES
 func _line_mode_pressed() -> void: # Switched to line mode
 	line_mode = !line_mode
+	act_label.text = "Toggled line mode to " + str(line_mode)
 
 func _hide_mode_pressed() -> void:
 	items.visible = !items.visible
+	act_label.text = "Toggled item visualization to " + str(items.visible)
 
 
 	# BALLS
@@ -363,17 +381,22 @@ func new_ball(typeEnum: int) -> void: # Create a ball
 	holding_goo = true
 	
 	held_goo = Globals.ball_template.duplicate(true)
-	held_goo.typeEnum = typeEnum
+	held_goo.typeEnum = typeEnum # Set stats
 	held_goo.uid = uid_increment
+		# Add to terrain balls, set id if is terrain
+	data.terrainBalls.append({"group": max(0, terrain_groups.selected - 1) if typeEnum == 10 else -1})
+	print(terrain_groups.selected)
+	
 	uid_increment += 1
 	
 	ball_uids[held_goo.uid] = {
 		ball_ref = held_goo, # Original ball
-		color = Globals.ball_details[held_goo.typeEnum].color, # Editor color
-		strands = [] # Connections
+		color = Globals.ball_details[typeEnum].color, # Editor color
+		visible = true # If visible in editor
 	}
 	
 	data.balls.append(held_goo)
+	act_label.text = "New " + Globals.ball_details[typeEnum].name + " ball spawned!"
 
 
 	# CURSOR
@@ -382,6 +405,7 @@ func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this w
 		#node.queue_free()
 	
 	if ball:
+		act_label.text = "Ball UID " + str(ball.uid) + " selected!"
 		selected_goo = true
 		sel_goo = ball
 		
@@ -393,4 +417,30 @@ func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this w
 				#cur_det.text = key
 		
 	else:
+		act_label.text = "Unselected ball"
 		selected_goo = false
+
+
+		# - TERRAIN -
+	# Terrain group selected
+func _terrain_group_selected(index: int) -> void:
+	var group_id: int # Used for checking for balls from terrainBalls
+	
+	if index != 0: # User selected a specific terrain group
+		act_label.text = "Switched to terrain group " + str(index - 1)
+		var ball: Dictionary
+		for ind: int in data.balls.size():
+			ball = data.balls[ind]
+			
+			if ball.typeEnum == 10:
+				group_id = data.terrainBalls[ind].group
+				
+				if max(0, group_id) == index - 1:
+					ball_uids[ball.uid].visible = true
+				else:
+					ball_uids[ball.uid].visible = false
+		
+	else: # User pressed show all
+		act_label.text = "Switched to all terrain groups! New terrain balls will default to group 0"
+		for ball: Dictionary in data.balls:
+			ball_uids[ball.uid].visible = true
