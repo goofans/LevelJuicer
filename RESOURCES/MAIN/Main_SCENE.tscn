@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://cb8vqv6l8psj8"]
+[gd_scene load_steps=8 format=3 uid="uid://cb8vqv6l8psj8"]
 
 [ext_resource type="Script" path="res://RESOURCES/MAIN/Main_SCRIPT.gd" id="1_x4mmc"]
 [ext_resource type="Theme" uid="uid://dm2ug4t4xvo6c" path="res://RESOURCES/Scenes/UI/Juicy_THEME.tres" id="2_0eg1q"]
 [ext_resource type="PackedScene" uid="uid://sxdcx0oleo14" path="res://RESOURCES/Scenes/UI/Buttons/Goo_Button_SCENE.tscn" id="3_eb66t"]
 [ext_resource type="Texture2D" uid="uid://irpxtcvjo2ji" path="res://RESOURCES/Scenes/UI/Textures/Line_Mode_SPRITE.png" id="4_udib4"]
+[ext_resource type="Texture2D" uid="uid://bmu5q2vw43oil" path="res://RESOURCES/Scenes/UI/Textures/Hide_Items_SPRITE.png" id="5_535b2"]
 [ext_resource type="StyleBox" uid="uid://cba3uo186hfxt" path="res://RESOURCES/Scenes/UI/Textures/Button_STYLEBOX.tres" id="5_ollqe"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6g1up"]
@@ -123,9 +124,23 @@ offset_left = 20.0
 offset_top = 84.56
 offset_right = 80.0
 offset_bottom = 136.56
-tooltip_text = "Line Mode"
+tooltip_text = "Toggle line mode"
 toggle_mode = true
 icon = ExtResource("4_udib4")
+
+[node name="Hide_BUTTON" parent="Control_LAYER/Control/Tool_PANEL" instance=ExtResource("3_eb66t")]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = -0.148
+anchor_right = 0.0
+anchor_bottom = -0.148
+offset_left = 20.0
+offset_top = 151.56
+offset_right = 80.0
+offset_bottom = 203.56
+tooltip_text = "Toggle visuals"
+toggle_mode = true
+icon = ExtResource("5_535b2")
 
 [node name="Top_Right_PANEL" type="Panel" parent="Control_LAYER/Control"]
 layout_mode = 1
@@ -196,7 +211,7 @@ item_1/id = 1
 
 [node name="Game_FILE" type="FileDialog" parent="."]
 auto_translate_mode = 1
-title = "Select World of Goo 2's Executable"
+title = "Open a File"
 initial_position = 1
 size = Vector2i(700, 400)
 theme = ExtResource("2_0eg1q")
@@ -207,6 +222,7 @@ access = 2
 [connection signal="pressed" from="Control_LAYER/Control/Save_BUTTON" to="." method="_Save_Pressed"]
 [connection signal="pressed" from="Control_LAYER/Control/Load_BUTTON" to="." method="_load_pressed"]
 [connection signal="pressed" from="Control_LAYER/Control/Tool_PANEL/Line_BUTTON" to="." method="_line_mode_pressed"]
+[connection signal="pressed" from="Control_LAYER/Control/Tool_PANEL/Hide_BUTTON" to="." method="_hide_mode_pressed"]
 [connection signal="canceled" from="Level_FILE" to="." method="_file_select_canceled"]
 [connection signal="file_selected" from="Level_FILE" to="." method="_Level_Selected"]
 [connection signal="index_pressed" from="Load_POPUP" to="." method="_popup_index_pressed"]

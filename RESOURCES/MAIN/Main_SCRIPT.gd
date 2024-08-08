@@ -106,8 +106,8 @@ func _Game_Selected(path: String) -> void:
 		game_path = game_path.replace("World of Goo 2", "game/")
 		game_path = game_path.replace("WorldOfGoo2", "game/")
 	
-	if (!FileAccess.file_exists("user://GameLoc.dat")):
-		save_file = FileAccess.open("user://GameLoc.dat", FileAccess.WRITE)
+	if (!FileAccess.file_exists("user://save_data.dat")):
+		save_file = FileAccess.open("user://save_data.dat", FileAccess.WRITE)
 		save_file.store_string(game_path)
 		save_file.close()
 
@@ -141,9 +141,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		# ITEMS
 	var sprite: Sprite2D
 	var item_data: Dictionary # Item name from .wog2
-	var node_name: String # Name of current node in XML
 	var xml: XMLParser = XMLParser.new()
-	var idprefix: String
 	xml.open(game_path + "res/items/images/_resources.xml")
 	
 	for item: Dictionary in data.items: # Create all items
@@ -161,19 +159,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		
 		for cur_item: Dictionary in item_data.items: # Loop through items
 			for object: Dictionary in cur_item.objects: # Loop through item's objects
-				xml.seek(0)
-					# XML
-				while xml.read() != ERR_FILE_EOF: # Read the XML and compare attributes
-					if xml.get_node_type() == XMLParser.NODE_ELEMENT:
-						node_name = xml.get_node_name()
-						if node_name == "SetDefaults":
-							# print(xml.get_named_attribute_value("path"))
-							idprefix = xml.get_named_attribute_value("idprefix")
-						if node_name == "Image":
-							node_name = object.name.replace(idprefix, "")
-							for idx: int in range(xml.get_attribute_count()):
-								if xml.get_attribute_value(idx) == node_name:
-									sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + xml.get_attribute_value(idx + 1) + ".image")
+				sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(xml, object.name) + ".image")
 	
 	
 	set_process(true) # Start processing input and drawing frames
@@ -354,11 +340,16 @@ func _popup_index_pressed(index: int) -> void: # Load popup pressed
 	if index == 0: get_tree().reload_current_scene()
 	else: load_popup.visible = false
 
+func _file_select_canceled() -> void: # Canceled file select (no file)
+	get_tree().quit()
+
+
+	# MODES
 func _line_mode_pressed() -> void: # Switched to line mode
 	line_mode = !line_mode
 
-func _file_select_canceled() -> void: # Canceled file select (no file)
-	get_tree().quit()
+func _hide_mode_pressed() -> void:
+	items.visible = !items.visible
 
 
 	# BALLS
