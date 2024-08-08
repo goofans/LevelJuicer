@@ -331,7 +331,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			for index: int in data.items.size(): # Change position and size of sprites
 				item = items_nodes[index]
 				item_data = data.items[index] # This is the worst the shitcode gets I swear
-				item.scale = Vector2(item_data.scale.x, item_data.scale.y) * zoom * 0.005
+				item.scale = Vector2(item_data.scale.x, item_data.scale.y) * zoom * 0.00
 				item.position = Vector2(item_data.pos.x, -item_data.pos.y) * zoom
 
 

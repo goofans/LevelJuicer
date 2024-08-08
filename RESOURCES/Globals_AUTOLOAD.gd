@@ -75,6 +75,8 @@ var ball_details: Array[Dictionary] = [ # Ball details based on enumType
 	{color = Color.WHITE, sprite = null, name = "Invisible anchor"},
 		# Jelly goo eye 37
 	{color = Color.WHITE, sprite = null, name = "Jelly goo eye"},
+		# Jelly goo??? 38
+	{color = Color.WHITE, sprite = null, name = "Jelly goo"}
 ]
 
 	# Resources
