@@ -98,8 +98,8 @@ func _Game_Selected(path: String) -> void:
 		game_path = game_path.replace("WorldOfGoo2.exe", "game/")
 		
 	if (OS.get_name() == "macOS"):
-		game_path = game_path.replace("World of Goo 2.app", "game/")
-		game_path = game_path.replace("WorldOfGoo2.app", "game/")
+		game_path = game_path.replace("World of Goo 2.app", "World of Goo 2.app/Resources/game/")
+		game_path = game_path.replace("WorldOfGoo2.app", "WorldOfGoo2.app/Resources/game/")
 	
 	# I gotta confirm if this is right for Linux
 	if (OS.get_name() == "Linux"):
