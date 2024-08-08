@@ -1,5 +1,4 @@
 	# Utility for reading XML files
-extends Node
 class_name XML_FINDER
 
 

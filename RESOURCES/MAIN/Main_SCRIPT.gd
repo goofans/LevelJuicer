@@ -14,10 +14,6 @@ var pre_path: String
 @onready var file_dialog: FileDialog = $Level_FILE
 @onready var game_dialog: FileDialog = $Game_FILE
 
-
-var item_xml: Dictionary # Item XML
-
-
 	# ARRAYS - TODO - cache positions in ball UIDs for optimization?
 var ball_uids: Dictionary = {} # Ball details for visualizing in the editor
 @onready var items: Node2D = $Items # Node2D that contains all item sprites
@@ -139,18 +135,18 @@ func _Level_Selected(path: String) -> void: # User selected a level
 			#terrain.polygon.append(Vector2(ball.pos.x, -ball.pos.y) * zoom)
 	
 		# ITEMS
-	var sprite: Sprite2D
+	var item_sprite: Sprite2D
 	var item_data: Dictionary # Item name from .wog2
-	var xml: XMLParser = XMLParser.new()
-	xml.open(game_path + "res/items/images/_resources.xml")
+	var item_xml: XMLParser = XMLParser.new()
+	item_xml.open(game_path + "res/items/images/_resources.xml")
 	
 	for item: Dictionary in data.items: # Create all items
-		sprite = Globals.item_scene.instantiate() # Create item
-		items.add_child(sprite)
-		sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.01 # Set item properties
-		sprite.position = Vector2(item.pos.x, -item.pos.y) * zoom
-		sprite.rotation = -item.rotation
-		sprite.z_index = item.depth
+		item_sprite = Globals.item_scene.instantiate() # Create item
+		items.add_child(item_sprite)
+		item_sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.01 # Set item properties
+		item_sprite.position = Vector2(item.pos.x, -item.pos.y) * zoom
+		item_sprite.rotation = -item.rotation
+		item_sprite.z_index = item.depth
 		
 			# ITEM FILE
 		file = FileAccess.open(game_path + "res/items/" + item.type + ".wog2", FileAccess.READ)
@@ -159,7 +155,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		
 		for cur_item: Dictionary in item_data.items: # Loop through items
 			for object: Dictionary in cur_item.objects: # Loop through item's objects
-				sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(xml, object.name) + ".image")
+				item_sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(item_xml, object.name) + ".image")
 	
 	
 	set_process(true) # Start processing input and drawing frames
