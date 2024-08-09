@@ -184,7 +184,7 @@ offset_right = -16.0
 offset_bottom = 33.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 25
-text = "Level Juicer V4.7"
+text = "Level Juicer V4.8"
 horizontal_alignment = 1
 vertical_alignment = 1
 
