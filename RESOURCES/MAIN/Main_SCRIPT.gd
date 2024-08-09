@@ -26,12 +26,16 @@ var select_color: Color = Color("ffa596") # Selection color for modulating
 
 	# MOUSE - TODO - add multi selection
 var sel_goo: Dictionary # Selected goo
+var sel_item: Sprite2D # Selected item sprite2D node
 var held_goo: Dictionary # Currently held goo
 var hovered_goo: Dictionary # Currently hovered goo
 
 var holding_goo: bool = false # If holding goo
 var hovering_goo: bool = false # If hovering over goo
 var selected_goo: bool = false # If a goo ball is currently selected
+
+var hovering_item: bool = false # If an item is currently hovered (hovered_goo is still the reference)
+var selected_item: bool = false # If an item is currently selected (sel_item is the reference!!)
 
 var zoom: float = 60.0 # Camera zoom
 var cur_dir: Vector2 = Vector2.ZERO # Cursor direction
@@ -143,6 +147,8 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	item_xml.open(game_path + "res/items/images/_resources.xml")
 	
 	for item: Dictionary in data.items: # Create all items
+		if item.uid > uid_increment: uid_increment = item.uid + 1
+		
 		item_sprite = Globals.item_scene.instantiate() # Create item
 		items.add_child(item_sprite)
 		item_sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.005 # Set item properties
@@ -207,6 +213,8 @@ func _draw() -> void:
 			held_goo.pos.x = mouse_pos.x / zoom # Move goo with cursor
 			held_goo.pos.y = -mouse_pos.y / zoom
 			
+			if selected_item: sel_item.position = mouse_pos # Update item sprite
+			
 			if !Input.is_action_pressed(&"Click"): # No longer holding goo
 				holding_goo = false
 			
@@ -242,7 +250,7 @@ func _draw() -> void:
 			details = Globals.ball_details[ball.typeEnum]
 			
 				# Isn't the currently selected goo
-			if (!selected_goo or sel_goo.uid != ball.uid):
+			if !selected_goo or sel_goo.uid != ball.uid:
 				cur_color = Color.WHITE if details.sprite else details.color
 			else: cur_color = select_color
 			
@@ -252,7 +260,7 @@ func _draw() -> void:
 				
 					# Cursor is over ball, be selected
 				if dist_to_cur < 12.0:
-						# Set as hovered
+						# Set as hovered goo
 					cur_color = select_color
 					hovered_goo = ball
 					hovering_goo = true
@@ -263,6 +271,33 @@ func _draw() -> void:
 				draw_texture(details.sprite, ball_pos - details.sprite.get_size() * 0.5, cur_color)
 			else: # Draw color if has no texture
 				draw_circle(ball_pos, 5.0, cur_color) # Draw circle
+	
+	
+		# ITEMS
+	var item_sprites: Array[Node] = items.get_children()
+	var sprite: Sprite2D
+	var item_data: Dictionary
+	hovering_item = false
+	for index: int in item_sprites.size():
+		sprite = item_sprites[index]
+		item_data = data.items[index]
+		
+			# Check if currently selected item
+		cur_color = Color.WHITE if !selected_goo or sel_goo.uid != item_data.uid else select_color
+		
+				# Cursor is not holding or hovering over any items
+		if (!holding_goo or line_mode) and !hovering_goo:
+			dist_to_cur = mouse_pos.distance_to(sprite.global_position) # Get distance to mouse
+			
+				# Cursor is over item, be selected
+			if dist_to_cur < 30.0:
+					# Set as hovered item
+				cur_color = select_color
+				hovered_goo = item_data
+				hovering_goo = true
+				hovering_item = true # Mark as item
+		
+		sprite.self_modulate = cur_color
 
 
 	# Process every frame
@@ -294,7 +329,7 @@ func _process(_delta: float) -> void:
 		
 		
 		# Is pressing right click
-	elif Input.is_action_pressed(&"Right_Click") and hovering_goo and not holding_goo:
+	elif Input.is_action_pressed(&"Right_Click") and hovering_goo and !holding_goo:
 		var strands_2_free: Array[Dictionary] = []
 		
 			# Delete ball
@@ -407,8 +442,12 @@ func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this w
 	if ball:
 		act_label.text = "Ball UID " + str(ball.uid) + " selected!"
 		selected_goo = true
+		if hovering_item: 
+			selected_item = true
+			sel_item = items.get_children()[data.items.find(ball)]
 		sel_goo = ball
 		
+			# DETAILS
 		#var cur_det: Label # Current detail
 		#for key: String in ball.keys():
 			#if ball[key] is bool:
@@ -419,6 +458,7 @@ func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this w
 	else:
 		act_label.text = "Unselected ball"
 		selected_goo = false
+		selected_item = false
 
 
 		# - TERRAIN -
