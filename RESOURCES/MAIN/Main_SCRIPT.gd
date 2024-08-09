@@ -290,7 +290,7 @@ func _draw() -> void:
 			dist_to_cur = mouse_pos.distance_to(sprite.global_position) # Get distance to mouse
 			
 				# Cursor is over item, be selected
-			if dist_to_cur < 30.0:
+			if dist_to_cur < 50.0:
 					# Set as hovered item
 				cur_color = select_color
 				hovered_goo = item_data
