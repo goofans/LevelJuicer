@@ -21,6 +21,10 @@ corner_radius_bottom_left = 15
 [node name="Main" type="Node2D"]
 script = ExtResource("1_x4mmc")
 
+[node name="Backgrounds" type="Node2D" parent="."]
+z_index = -4096
+z_as_relative = false
+
 [node name="Items" type="Node2D" parent="."]
 z_index = -4096
 z_as_relative = false

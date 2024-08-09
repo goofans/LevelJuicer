@@ -21,6 +21,8 @@ var item_xml: XMLParser = XMLParser.new() # Parse XML resources
 var ball_uids: Dictionary = {} # Ball details for visualizing in the editor
 var item_uid_data: Dictionary = {} # Fetch an items name with it's UID
 @onready var items: Node2D = $Items # Node2D that contains all item sprites
+@onready var backgrounds: Node2D = $Backgrounds # Node2D that contains all item sprites
+
 
 var ball_buttons: Array[Button] = [] # Array of ball buttons
 var item_dropdowns: Array[OptionButton] = [] # Array of item dropdowns
@@ -153,6 +155,22 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		# ITEMS
 	for item: Dictionary in data.items: # Create all items
 		new_item_sprite(item)
+
+	# BG Layers
+	var background_json = FileAccess.open(game_path + "res/environments/" + data.backgroundId + ".wog2", FileAccess.READ)
+	var background_data = JSON.parse_string(background_json.get_as_text())
+	var background_xml = XMLParser.new()
+	background_xml.open(game_path + "res/environments/images/_resources.xml")
+	
+	for layer:Dictionary in background_data.layers:
+		print(layer)
+		var background_sprite:Sprite2D = Globals.item_scene.instantiate() # Create item
+		backgrounds.add_child(background_sprite)
+		background_sprite.z_index = layer.depth
+		background_sprite.position = Vector2(layer.anchors.x, layer.anchors.y)
+		background_sprite.scale = Vector2(layer.scale, layer.scale)
+		print(game_path + "res/environments/images/" + XML_FINDER.find_xml_value(background_xml, layer.imageName) + ".image")
+		background_sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/environments/images/" + XML_FINDER.find_xml_value(background_xml, layer.imageName) + ".image")
 	
 	
 	
@@ -366,7 +384,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 			# ITEMS
 		if pre_zoom != zoom: # Zoom was changed
-			var item: Sprite2D
+			var item: Node2D
 			var items_nodes: Array[Node] = items.get_children()
 			var item_data: Dictionary
 			
