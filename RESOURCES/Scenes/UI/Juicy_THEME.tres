@@ -1,12 +1,13 @@
-[gd_resource type="Theme" load_steps=17 format=3 uid="uid://dm2ug4t4xvo6c"]
+[gd_resource type="Theme" load_steps=20 format=3 uid="uid://dm2ug4t4xvo6c"]
 
-[ext_resource type="StyleBox" uid="uid://d2w86c017w6s5" path="res://RESOURCES/Scenes/UI/Textures/Button_Focus_STYLEBOX.tres" id="1_h44wt"]
-[ext_resource type="StyleBox" uid="uid://bincy5e1uv3bq" path="res://RESOURCES/Scenes/UI/Textures/Button_Disabled_STYLEBOX.tres" id="1_odnxd"]
+[ext_resource type="StyleBox" uid="uid://bincy5e1uv3bq" path="res://RESOURCES/Scenes/UI/Textures/Styleboxes/Button_Disabled_STYLEBOX.tres" id="1_h5ddt"]
 [ext_resource type="FontFile" uid="uid://b5ds50lqyjrdv" path="res://RESOURCES/Scenes/UI/Earths_Mightiest_Bold.ttf" id="1_qukui"]
-[ext_resource type="StyleBox" uid="uid://cba3uo186hfxt" path="res://RESOURCES/Scenes/UI/Textures/Button_STYLEBOX.tres" id="1_rs8tx"]
-[ext_resource type="StyleBox" uid="uid://bx1f15cw13air" path="res://RESOURCES/Scenes/UI/Textures/Panel_STYLEBOX.tres" id="2_afmsl"]
-[ext_resource type="StyleBox" uid="uid://bynvdrtq3db8e" path="res://RESOURCES/Scenes/UI/Textures/Button_Hover_STYLEBOX.tres" id="2_rcpmb"]
-[ext_resource type="StyleBox" uid="uid://nltkr0m052ed" path="res://RESOURCES/Scenes/UI/Textures/Button_Pressed_STYLEBOX.tres" id="4_453mb"]
+[ext_resource type="StyleBox" uid="uid://d2w86c017w6s5" path="res://RESOURCES/Scenes/UI/Textures/Styleboxes/Button_Focus_STYLEBOX.tres" id="2_d01tq"]
+[ext_resource type="StyleBox" uid="uid://bynvdrtq3db8e" path="res://RESOURCES/Scenes/UI/Textures/Styleboxes/Button_Hover_STYLEBOX.tres" id="3_eptbk"]
+[ext_resource type="StyleBox" uid="uid://nltkr0m052ed" path="res://RESOURCES/Scenes/UI/Textures/Styleboxes/Button_Pressed_STYLEBOX.tres" id="4_hrapi"]
+[ext_resource type="StyleBox" uid="uid://cba3uo186hfxt" path="res://RESOURCES/Scenes/UI/Textures/Styleboxes/Button_STYLEBOX.tres" id="5_km5wy"]
+[ext_resource type="StyleBox" uid="uid://bx1f15cw13air" path="res://RESOURCES/Scenes/UI/Textures/Styleboxes/Panel_STYLEBOX.tres" id="6_7lbe6"]
+[ext_resource type="StyleBox" uid="uid://cph40k1t5duul" path="res://RESOURCES/Scenes/UI/Textures/Styleboxes/Scroll_STYLEBOX.tres" id="7_5jhw7"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0l7of"]
 
@@ -106,6 +107,26 @@ border_width_bottom = 5
 border_color = Color(0.160784, 0.160784, 0.160784, 1)
 corner_detail = 1
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_17ego"]
+content_margin_left = 20.0
+content_margin_top = 15.0
+content_margin_right = 10.0
+bg_color = Color(0.0562916, 0.0562916, 0.0562916, 0.686275)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iln4i"]
+content_margin_left = 20.0
+content_margin_top = 15.0
+content_margin_right = 10.0
+bg_color = Color(0.0885599, 0.0885599, 0.0885598, 0.686275)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rii8k"]
 bg_color = Color(0.145098, 0.145098, 0.145098, 0.686275)
 border_width_left = 5
@@ -125,12 +146,12 @@ Button/colors/font_color = Color(1, 1, 1, 1)
 Button/constants/align_to_largest_stylebox = 1
 Button/constants/h_separation = 15
 Button/constants/outline_size = 10
-Button/styles/disabled = ExtResource("1_odnxd")
-Button/styles/focus = ExtResource("1_h44wt")
-Button/styles/hover = ExtResource("2_rcpmb")
-Button/styles/hover_pressed = ExtResource("4_453mb")
-Button/styles/normal = ExtResource("1_rs8tx")
-Button/styles/pressed = ExtResource("4_453mb")
+Button/styles/disabled = ExtResource("1_h5ddt")
+Button/styles/focus = ExtResource("2_d01tq")
+Button/styles/hover = ExtResource("3_eptbk")
+Button/styles/hover_pressed = ExtResource("4_hrapi")
+Button/styles/normal = ExtResource("5_km5wy")
+Button/styles/pressed = ExtResource("4_hrapi")
 CheckBox/styles/disabled = SubResource("StyleBoxEmpty_0l7of")
 CheckBox/styles/focus = SubResource("StyleBoxEmpty_0l7of")
 CheckBox/styles/hover = SubResource("StyleBoxEmpty_0l7of")
@@ -142,12 +163,17 @@ Label/styles/normal = SubResource("StyleBoxFlat_6kyqg")
 OptionButton/constants/arrow_margin = 15
 OptionButton/styles/focus = SubResource("StyleBoxFlat_qigwv")
 OptionButton/styles/hover = SubResource("StyleBoxFlat_sqr7p")
-OptionButton/styles/hover_pressed = ExtResource("4_453mb")
+OptionButton/styles/hover_pressed = ExtResource("4_hrapi")
 OptionButton/styles/normal = SubResource("StyleBoxFlat_700q4")
 OptionButton/styles/pressed = SubResource("StyleBoxFlat_wrg4c")
-Panel/styles/panel = ExtResource("2_afmsl")
+Panel/styles/panel = ExtResource("6_7lbe6")
 PopupMenu/styles/hover = SubResource("StyleBoxFlat_eniwf")
 PopupMenu/styles/panel = SubResource("StyleBoxFlat_fnexn")
+ScrollContainer/styles/panel = ExtResource("7_5jhw7")
+TextEdit/font_sizes/font_size = 20
+TextEdit/styles/focus = SubResource("StyleBoxFlat_17ego")
+TextEdit/styles/normal = SubResource("StyleBoxFlat_iln4i")
+TextEdit/styles/read_only = SubResource("StyleBoxFlat_17ego")
 TooltipLabel/constants/outline_size = 10
 TooltipPanel/colors/title_outline_modulate = Color(1, 1, 1, 1)
 TooltipPanel/constants/title_outline_size = 10

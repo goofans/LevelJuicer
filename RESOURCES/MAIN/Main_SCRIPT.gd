@@ -58,7 +58,7 @@ var line_mode: bool = false # Is drawing lines
 @onready var menu: CanvasLayer = $Control_LAYER # Entirety of the menu
 @onready var proj_name: Label = $Control_LAYER/Control/Name_LABEL # Name of the level
 @onready var act_label: Label = $Control_LAYER/Control/Action_LABEL
-@onready var detail_container: VBoxContainer = $Control_LAYER/Control/Info_PANEL/V_Box_CONTAINER
+@onready var detail_container: VBoxContainer = $Control_LAYER/Control/Info_PANEL/Scroll_CONTAINER/V_Box_CONTAINER
 
 @onready var terrain_groups: OptionButton = $Control_LAYER/Control/Tool_PANEL/Terrain_Groups_DROPDOWN
 var item_sprites: Array[Node]
@@ -319,11 +319,6 @@ func _process(_delta: float) -> void:
 				hovering_goo = false
 				holding_goo = true
 				select_goo(hovered_goo)
-			
-			
-			# Has selected goo - remove selection
-		elif !holding_goo and selected_goo:
-			select_goo()
 		
 		
 		# Is pressing right click
@@ -416,7 +411,7 @@ func _hide_mode_pressed() -> void:
 
 	# BALLS
 func new_ball_button(typeEnum: int) -> void: # Create a ball spawning button
-	var new_btn: Button = Globals.goo_button_scene.instantiate()
+	var new_btn: Button = Globals.button_scene.instantiate()
 	var type: Dictionary = Globals.ball_details[typeEnum]
 	
 	goo_container.add_child(new_btn)
@@ -434,7 +429,6 @@ func new_ball(typeEnum: int) -> void: # Create a ball
 	held_goo.uid = uid_increment
 		# Add to terrain balls, set id if is terrain
 	data.terrainBalls.append({"group": max(0, terrain_groups.selected - 1) if typeEnum == 10 else -1})
-	print(terrain_groups.selected)
 	
 	uid_increment += 1
 	
@@ -451,7 +445,7 @@ func new_ball(typeEnum: int) -> void: # Create a ball
 
 	# ITEMS
 func new_item_button(group: String) -> void: # create dropdown options for each group
-	var new_btn: OptionButton = Globals.goo_dropdown_scene.instantiate()
+	var new_btn: OptionButton = Globals.dropdown_scene.instantiate()
 	var item_data: Dictionary = Globals.item_groups[group]
 	
 	new_btn.item_selected.connect(func(id: int) -> void:
@@ -538,9 +532,9 @@ func new_item_sprite(item: Dictionary) -> Sprite2D: # Create sprite2D for item
 
 
 	# CURSOR
-func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this work for items too
-	#for node: Node in detail_container.get_children(): # Clear previous selection
-		#node.queue_free()
+func select_goo(ball: Dictionary) -> void: # Select goo - TODO - make this work for items too
+	for node: Node in detail_container.get_children(): # Clear previous selection
+		node.queue_free()
 	
 	if ball: # Selected something
 		selected_goo = true
@@ -552,16 +546,16 @@ func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this w
 		sel_goo = ball
 		
 			# DETAILS
-		#var cur_det: Label # Current detail
-		#for key: String in ball.keys():
-			#if ball[key] is bool:
-				#cur_det = Globals.checkmark_scene.instantiate()
-				#detail_container.add_child(cur_det)
-				#cur_det.text = key
-		
-	else: # Unselected something
-		new_undo("Unselected " + "item" if items_toggled else "ball" + "! (UID " + str(sel_goo.uid) + " )")
-		selected_goo = false
+		var cur_det: Label # Current detail
+		for key: String in ball.keys():
+			if ball[key] is bool:
+				cur_det = Globals.checkmark_scene.instantiate()
+				detail_container.add_child(cur_det)
+				cur_det.text = key
+
+
+func set_details() -> void: # Create details
+	pass
 
 
 

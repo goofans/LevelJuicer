@@ -30,7 +30,7 @@ var ball_details: Array[Dictionary] = [ # Ball details based on enumType
 		# Conduit ball 12
 	{color = Color.ANTIQUE_WHITE, sprite = preload("res://RESOURCES/Scenes/Balls/Conduit_BALL.png"), name = "Conduit/Liquid"},
 		# Liquid Launcher 13
-	{color = Color.LIGHT_PINK, sprite = null, name = "Liquid Launcher"},
+	{color = Color.LIGHT_PINK, sprite = preload("res://RESOURCES/Scenes/Balls/Liquid_Launcher_BALL.png"), name = "Liquid Launcher"},
 		# White goo product 14
 	{color = Color.WHITE, sprite = preload("res://RESOURCES/Scenes/Balls/Product_White_BALL.png"), name = "White Product"},
 		# Enlarging goo 15
@@ -87,8 +87,8 @@ var debug_texture: CompressedTexture2D = preload("res://Level_Juicer_ICON.png") 
 var item_scene: PackedScene = preload("res://RESOURCES/Scenes/Items/Item_SCENE.tscn")
 
 	# UI
-var goo_button_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Goo_Button_SCENE.tscn")
-var goo_dropdown_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Goo_Dropdown_SCENE.tscn")
+var button_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Button_SCENE.tscn")
+var dropdown_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Dropdown_SCENE.tscn")
 var checkmark_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Checkmark_SCENE.tscn")
 
 
@@ -113,14 +113,29 @@ var item_groups: Dictionary = {
 			{"type": "a5fd4181-ab99-4a1d-8165-e8d03522a873", "name": "BushUni"},
 			{"type": "61af9272-4c9b-4c5e-9949-3661ffb87ab9", "name": "Cloud1"},
 			{"type": "61af9272-0402-4ab5-a8e3-b1fcc1096015", "name": "Cloud2"},
-			{"type": "059c2646-80d1-4c16-859b-2d5a0092a4c8", "name": "SignPainterSign"},
-			{"type": "61af9274-06c9-47bb-82e0-9b6094a0afb4", "name": "Pool"},
+			{"type": "059c2646-80d1-4c16-859b-2d5a0092a4c8", "name": "Text Sign"},
 			{"type": "c70e624f-5997-4819-956c-f62a9ed8082b", "name": "Rocks"},
 			{"type": "4fd66c29-26f7-4d00-bbc2-139a3503ccc0", "name": "Cloud_Big1"},
-			{"type": "61af9273-a579-4819-9837-f3c4aa9a7efb", "name": "PipeInLiquid"},
-			{"type": "152347d8-ed08-47bc-9100-a1ccefcb3389", "name": "ChainHeadDynamic"},
-			{"type": "00826534-fe3c-4ccb-b906-c95f06bf3fc4", "name": "ChainHeadTotem"},
-			{"type": "66a25152-fdd2-4f14-bb63-2ba53d131e0f", "name": "LevelExit"}
+			{"type": "61af9273-a579-4819-9837-f3c4aa9a7efb", "name": "Liquid Spewing Pipe"},
+			{"type": "152347d8-ed08-47bc-9100-a1ccefcb3389", "name": "Chain Head"},
+			{"type": "00826534-fe3c-4ccb-b906-c95f06bf3fc4", "name": "Chain Head Totem"},
+			{"type": "4e0f27cc-0d6a-42af-aa1f-6dbaa7ca91cf", "name": "WogTree"}
+		]
+	},
+	
+	"Terrain & Tools": {
+		"icon": preload("res://RESOURCES/Scenes/UI/Textures/Terrain_ITEM_GROUP.png"),
+		"tooltip": "Terrain items and effects (slippery, sticky, etc.)",
+		"items": [
+			{"type": "66a25152-fdd2-4f14-bb63-2ba53d131e0f", "name": "Pipe"},
+			{"type": "1116e4a8-a0d7-44fb-b410-b550136d64f0", "name": "Clear Terrain"},
+			{"type": "70332f9e-099e-4d10-a54d-a58ac2818cfd", "name": "Deadly Terrain"},
+			{"type": "83420ee5-7654-4487-8d9f-b6b887580b83", "name": "Unwalkable Terrain"},
+			{"type": "3697924e-8c7c-459b-8b74-831471dbb4c8", "name": "NonSticky Terrain"},
+			{"type": "f880b801-fa2b-4dae-aba6-af1c982537b1", "name": "Sticky Terrain"},
+			{"type": "e0e98b9b-966d-4fad-9c43-147eff564f50", "name": "Frictionless Terrain"},
+			{"type": "a4c50af4-f8fe-4949-af55-338d9d74bb56", "name": "Water Level"},
+			{"type": "61af9274-06c9-47bb-82e0-9b6094a0afb4", "name": "Liquid Pool"},
 		]
 	}
 }

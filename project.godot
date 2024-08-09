@@ -47,11 +47,15 @@ folder_colors={
 "res://RESOURCES/MAIN/": "red",
 "res://RESOURCES/Scenes/": "orange",
 "res://RESOURCES/Scenes/Balls/": "pink",
+"res://RESOURCES/Scenes/Balls/JSON/": "red",
 "res://RESOURCES/Scenes/Items/": "purple",
+"res://RESOURCES/Scenes/Items/JSON/": "red",
 "res://RESOURCES/Scenes/Terrain/": "blue",
+"res://RESOURCES/Scenes/Terrain/JSON/": "red",
 "res://RESOURCES/Scenes/UI/": "teal",
 "res://RESOURCES/Scenes/UI/Buttons/": "red",
 "res://RESOURCES/Scenes/UI/Textures/": "orange",
+"res://RESOURCES/Scenes/UI/Textures/Styleboxes/": "pink",
 "res://addons/": "red"
 }
 
@@ -95,7 +99,6 @@ Right_Click={
 [rendering]
 
 textures/canvas_textures/default_texture_filter=2
-textures/canvas_textures/default_texture_repeat=1
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_s3tc_bptc=true

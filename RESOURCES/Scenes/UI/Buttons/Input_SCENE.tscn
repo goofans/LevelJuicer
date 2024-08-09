@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://cwb5ageum2gqv"]
+
+[node name="Input_SCENE" type="TextEdit"]
+self_modulate = Color(2, 2, 2, 1)
+custom_minimum_size = Vector2(135, 35)
+anchors_preset = -1
+anchor_right = 0.212833
+anchor_bottom = 0.0914074
+offset_top = -1.0
+offset_right = -69.32
+offset_bottom = -15.36
+scale = Vector2(1.5, 1.5)
+text = "test"
+metadata/_edit_use_anchors_ = true
