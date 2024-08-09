@@ -14,9 +14,16 @@ var pre_path: String
 @onready var file_dialog: FileDialog = $Level_FILE
 @onready var game_dialog: FileDialog = $Game_FILE
 
+var item_xml: XMLParser = XMLParser.new() # Parse XML resources
+
+
 	# ARRAYS - TODO - cache positions in ball UIDs for optimization?
 var ball_uids: Dictionary = {} # Ball details for visualizing in the editor
+var item_uid_data: Dictionary = {} # Fetch an items name with it's UID
 @onready var items: Node2D = $Items # Node2D that contains all item sprites
+
+var ball_buttons: Array[Button] = [] # Array of ball buttons
+var item_dropdowns: Array[OptionButton] = [] # Array of item dropdowns
 
 
 	# VISUALS
@@ -26,7 +33,7 @@ var select_color: Color = Color("ffa596") # Selection color for modulating
 
 	# MOUSE - TODO - add multi selection
 var sel_goo: Dictionary # Selected goo
-var sel_item: Sprite2D # Selected item sprite2D node
+var sel_goo_sprite: Sprite2D # Selected item sprite2D node
 var held_goo: Dictionary # Currently held goo
 var hovered_goo: Dictionary # Currently hovered goo
 
@@ -34,8 +41,7 @@ var holding_goo: bool = false # If holding goo
 var hovering_goo: bool = false # If hovering over goo
 var selected_goo: bool = false # If a goo ball is currently selected
 
-var hovering_item: bool = false # If an item is currently hovered (hovered_goo is still the reference)
-var selected_item: bool = false # If an item is currently selected (sel_item is the reference!!)
+var items_toggled: bool = false # If currently editing items
 
 var zoom: float = 60.0 # Camera zoom
 var cur_dir: Vector2 = Vector2.ZERO # Cursor direction
@@ -55,6 +61,7 @@ var line_mode: bool = false # Is drawing lines
 @onready var detail_container: VBoxContainer = $Control_LAYER/Control/Info_PANEL/V_Box_CONTAINER
 
 @onready var terrain_groups: OptionButton = $Control_LAYER/Control/Tool_PANEL/Terrain_Groups_DROPDOWN
+var item_sprites: Array[Node]
 
 
 	# BALLS
@@ -94,7 +101,6 @@ func _ready() -> void: # Defaults
 	# FILES
 func _Game_Selected(path: String) -> void:
 	game_path = path
-	act_label.text = "Level loaded successfully!"
 	
 		# The executable name is different depending if the game is on EGS or not
 	if (OS.get_name() == "Windows"):
@@ -120,13 +126,16 @@ func _Game_Selected(path: String) -> void:
 	file_dialog.set_current_dir(game_path + "res/levels")
 	file_dialog.add_filter("*.wog2")
 	file_dialog.visible = true
-	
+
+
 
 func _Level_Selected(path: String) -> void: # User selected a level
 	pre_path = path # Save path for saving the file
 	file = FileAccess.open(path, FileAccess.READ)
 	data = JSON.parse_string(file.get_as_text()) # Get data from file
 	file = null # Close file
+	
+	item_xml.open(game_path + "res/items/images/_resources.xml")
 	
 	
 		# BALLS
@@ -140,30 +149,11 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		}
 	
 	
-		# ITEMS
-	var item_sprite: Sprite2D
-	var item_data: Dictionary # Item name from .wog2
-	var item_xml: XMLParser = XMLParser.new()
-	item_xml.open(game_path + "res/items/images/_resources.xml")
 	
+		# ITEMS
 	for item: Dictionary in data.items: # Create all items
-		if item.uid > uid_increment: uid_increment = item.uid + 1
-		
-		item_sprite = Globals.item_scene.instantiate() # Create item
-		items.add_child(item_sprite)
-		item_sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.005 # Set item properties
-		item_sprite.position = Vector2(item.pos.x, -item.pos.y) * zoom
-		item_sprite.rotation = -item.rotation
-		item_sprite.z_index = item.depth
-		
-			# ITEM FILE
-		file = FileAccess.open(game_path + "res/items/" + item.type + ".wog2", FileAccess.READ)
-		item_data = JSON.parse_string(file.get_as_text())
-		file = null
-		
-		for cur_item: Dictionary in item_data.items: # Loop through items
-			for object: Dictionary in cur_item.objects: # Loop through item's objects
-				item_sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(item_xml, object.name) + ".image")
+		new_item_sprite(item)
+	
 	
 	
 	set_process(true) # Start processing input and drawing frames
@@ -172,20 +162,26 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		# UI
 	var type: Dictionary
 	var terrain_icon: CompressedTexture2D = preload("res://RESOURCES/Scenes/UI/Textures/Terrain_Groups_TEXTURE.png")
+	
+		# BUTTONS
 	for index: int in Globals.ball_details.size(): # Create goo ball buttons
 		type = Globals.ball_details[index]
-		
 		if type.sprite:
 			new_ball_button(index)
+	
+	for group: String in Globals.item_groups.keys(): # Create item dropdown buttons
+		new_item_button(group) # NOTE - these are not added to the scene tree yet
 	
 	for index: int in data.terrainGroups.size(): # Terrain groups dropdown
 		terrain_groups.add_icon_item(terrain_icon, "Group " + str(index))
 	
 	proj_name.text = data.title # Set level name
+	new_undo("Level loaded successfully! RMB - delete | Scroll - zoom | WASD - move")
+
 
 
 	# DRAW
-func _draw() -> void:
+func _draw() -> void: # Draw every frame
 	if !data: return
 	
 		# DRAW STRANDS
@@ -209,11 +205,11 @@ func _draw() -> void:
 		# INPUT WITH DRAWING
 	if holding_goo:
 			# DRAG MODE
-		if !line_mode:
+		if !line_mode or items_toggled:
 			held_goo.pos.x = mouse_pos.x / zoom # Move goo with cursor
 			held_goo.pos.y = -mouse_pos.y / zoom
 			
-			if selected_item: sel_item.position = mouse_pos # Update item sprite
+			if items_toggled: sel_goo_sprite.position = mouse_pos # Update item sprite
 			
 			if !Input.is_action_pressed(&"Click"): # No longer holding goo
 				holding_goo = false
@@ -249,21 +245,23 @@ func _draw() -> void:
 			ball_pos = Vector2(ball.pos.x, -ball.pos.y) * zoom # Cache ball's visual position
 			details = Globals.ball_details[ball.typeEnum]
 			
-				# Isn't the currently selected goo
-			if !selected_goo or sel_goo.uid != ball.uid:
-				cur_color = Color.WHITE if details.sprite else details.color
-			else: cur_color = select_color
-			
-				# Cursor is not holding or hovering over any goo
-			if (!holding_goo or line_mode) and !hovering_goo:
-				dist_to_cur = mouse_pos.distance_to(ball_pos) # Get distance to mouse
+				# If editing balls
+			if !items_toggled:
+					# Isn't the currently selected goo
+				if !selected_goo or sel_goo.uid != ball.uid:
+					cur_color = Color.WHITE if details.sprite else details.color
+				else: cur_color = select_color
 				
-					# Cursor is over ball, be selected
-				if dist_to_cur < 12.0:
-						# Set as hovered goo
-					cur_color = select_color
-					hovered_goo = ball
-					hovering_goo = true
+					# Cursor is not holding or hovering over any goo
+				if (!holding_goo or line_mode) and !hovering_goo:
+					dist_to_cur = mouse_pos.distance_to(ball_pos) # Get distance to mouse
+					
+						# Cursor is over ball, be selected
+					if dist_to_cur < 12.0:
+							# Set as hovered goo
+						cur_color = select_color
+						hovered_goo = ball
+						hovering_goo = true
 			
 			
 				# Draw ball
@@ -274,30 +272,30 @@ func _draw() -> void:
 	
 	
 		# ITEMS
-	var item_sprites: Array[Node] = items.get_children()
-	var sprite: Sprite2D
-	var item_data: Dictionary
-	hovering_item = false
-	for index: int in item_sprites.size():
-		sprite = item_sprites[index]
-		item_data = data.items[index]
+	if items_toggled: # If editing items
+		item_sprites = items.get_children() # Get all item sprites
+		var sprite: Sprite2D
+		var item_data: Dictionary
 		
-			# Check if currently selected item
-		cur_color = Color.WHITE if !selected_goo or sel_goo.uid != item_data.uid else select_color
-		
-				# Cursor is not holding or hovering over any items
-		if (!holding_goo or line_mode) and !hovering_goo and !hovering_item:
-			dist_to_cur = mouse_pos.distance_to(sprite.global_position) # Get distance to mouse
+		for index: int in item_sprites.size():
+			sprite = item_sprites[index]
+			item_data = data.items[index]
 			
-				# Cursor is over item, be selected
-			if dist_to_cur < 50.0:
-					# Set as hovered item
-				cur_color = select_color
-				hovered_goo = item_data
-				hovering_goo = true
-				hovering_item = true # Mark as item
-		
-		sprite.self_modulate = cur_color
+				# Check if currently selected item
+			cur_color = Color.WHITE if !selected_goo or sel_goo.uid != item_data.uid else select_color
+			
+					# Cursor is not holding or hovering over any items
+			if (!holding_goo or line_mode) and !hovering_goo:
+				dist_to_cur = mouse_pos.distance_to(sprite.global_position) # Get distance to mouse
+				
+					# Cursor is over item, be selected
+				if dist_to_cur < 50.0:
+						# Set as hovered item
+					cur_color = select_color
+					hovered_goo = item_data
+					hovering_goo = true
+			
+			sprite.self_modulate = cur_color
 
 
 	# Process every frame
@@ -332,7 +330,7 @@ func _process(_delta: float) -> void:
 	elif Input.is_action_pressed(&"Right_Click") and hovering_goo and !holding_goo:
 				# DELETE
 			# Delete ball
-		if !hovering_item:
+		if !items_toggled:
 			var strands_2_free: Array[Dictionary] = []
 			
 				# Delete ball
@@ -342,7 +340,7 @@ func _process(_delta: float) -> void:
 			for strand: Dictionary in strands_2_free: # Delete queued strands
 				data.strands.erase(strand)
 			
-			act_label.text = "Ball deleted!"
+			new_undo("Ball deleted!")
 			data.terrainBalls.erase(data.balls.find(hovered_goo)) # Remove from terrain balls
 			data.balls.erase(hovered_goo) # Erase goo ball
 			
@@ -350,7 +348,7 @@ func _process(_delta: float) -> void:
 		else:
 			items.get_children()[data.items.find(hovered_goo)].free()
 			data.items.erase(hovered_goo)
-			act_label.text = "Item deleted!"
+			new_undo("Item (" + item_uid_data[hovered_goo.type].name + ") deleted!")
 	
 	queue_redraw()
 
@@ -364,7 +362,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			zoom += 2.0
 			
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN: # Zoom out
-			zoom -= 2.0
+			zoom = max(0.0, zoom - 2.0)
 		
 			# ITEMS
 		if pre_zoom != zoom: # Zoom was changed
@@ -379,15 +377,16 @@ func _unhandled_input(event: InputEvent) -> void:
 				item.position = Vector2(item_data.pos.x, -item_data.pos.y) * zoom
 
 
+
 	# UI
 func _Save_Pressed() -> void: # Save pressed
 	file = FileAccess.open(pre_path, FileAccess.WRITE)
 	if file:
 		file.store_line(JSON.stringify(data, "	", false))
 		file.close()
-		act_label.text = "Level saved to " + pre_path + " successfully!"
+		new_undo("Level saved to " + pre_path + " successfully!")
 	else:
-		act_label.text = "ERROR! - Failed to save! File path changed or insufficient priviledges"
+		new_undo("ERROR! - Failed to save! File path changed or insufficient priviledges")
 
 func _load_pressed() -> void: # Load pressed
 	load_popup.visible = true
@@ -399,15 +398,20 @@ func _popup_index_pressed(index: int) -> void: # Load popup pressed
 func _file_select_canceled() -> void: # Canceled file select (no file)
 	get_tree().quit()
 
+func new_undo(text: String) -> void: # Sets last detailed action
+	act_label.text = text
+
+
 
 	# MODES
 func _line_mode_pressed() -> void: # Switched to line mode
 	line_mode = !line_mode
-	act_label.text = "Toggled line mode to " + str(line_mode)
+	new_undo("Toggled line mode to " + str(line_mode))
 
 func _hide_mode_pressed() -> void:
 	items.visible = !items.visible
-	act_label.text = "Toggled item visualization to " + str(items.visible)
+	new_undo("Toggled item visualization to " + str(items.visible))
+
 
 
 	# BALLS
@@ -419,6 +423,7 @@ func new_ball_button(typeEnum: int) -> void: # Create a ball spawning button
 	new_btn.button_down.connect(new_ball.bind(typeEnum), 1)
 	new_btn.icon = type.sprite
 	new_btn.tooltip_text = type.name
+	ball_buttons.append(new_btn)
 
 
 func new_ball(typeEnum: int) -> void: # Create a ball
@@ -440,7 +445,90 @@ func new_ball(typeEnum: int) -> void: # Create a ball
 	}
 	
 	data.balls.append(held_goo)
-	act_label.text = "New " + Globals.ball_details[typeEnum].name + " ball spawned!"
+	new_undo("New " + Globals.ball_details[typeEnum].name + " ball spawned!")
+
+
+
+	# ITEMS
+func new_item_button(group: String) -> void: # create dropdown options for each group
+	var new_btn: OptionButton = Globals.goo_dropdown_scene.instantiate()
+	var item_data: Dictionary = Globals.item_groups[group]
+	
+	new_btn.item_selected.connect(func(id: int) -> void:
+		new_btn.selected = -1
+		new_item(group, id)
+		new_btn.icon = item_data.icon
+	, 1)
+	new_btn.tooltip_text = item_data.tooltip
+	
+	for item: Dictionary in item_data.items: # Add items to dropdown
+		new_btn.add_item(item.name)
+	
+	item_dropdowns.append(new_btn)
+	new_btn.selected = -1
+	new_btn.icon = item_data.icon
+
+
+func new_item(group: String, id: int) -> void:
+	var item_data: Dictionary = Globals.item_groups[group].items[id]
+	holding_goo = true
+	
+	held_goo = Globals.item_template.duplicate(true)
+	held_goo.type = item_data.type # Set stats
+	held_goo.uid = uid_increment
+	
+	uid_increment += 1
+	data.items.append(held_goo)
+	
+	sel_goo_sprite = new_item_sprite(held_goo)
+	new_undo("New " + item_data.name + " spawned!")
+
+
+func _edit_mode_swapped() -> void: # Swapped to different edit mode
+	items_toggled = !items_toggled
+	new_undo("Toggled editing items to " + str(items_toggled))
+	
+		# SWAP GOO/ITEM BAR
+	if items_toggled: # Items toggled on
+		for button: Button in ball_buttons:
+			goo_container.remove_child(button)
+		for button: OptionButton in item_dropdowns:
+			goo_container.add_child(button)
+		
+		# Items toggled off
+	else:
+		for button: OptionButton in item_dropdowns:
+			goo_container.remove_child(button)
+		for button: Button in ball_buttons:
+			goo_container.add_child(button)
+
+
+func new_item_sprite(item: Dictionary) -> Sprite2D: # Create sprite2D for item
+	var item_sprite: Sprite2D
+	var item_data: Dictionary # Item name from .wog2
+	
+	item_sprite = Globals.item_scene.instantiate() # Create item
+	items.add_child(item_sprite)
+	item_sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.005 # Set item properties
+	item_sprite.position = Vector2(item.pos.x, -item.pos.y) * zoom
+	item_sprite.rotation = -item.rotation
+	item_sprite.z_index = item.depth
+	
+		# ITEM FILE
+	file = FileAccess.open(game_path + "res/items/" + item.type + ".wog2", FileAccess.READ)
+	item_data = JSON.parse_string(file.get_as_text())
+	file = null
+	
+	for cur_item: Dictionary in item_data.items: # Loop through items
+		var texture: ImageTexture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(item_xml, cur_item.objects[0].name) + ".image")
+		item_uid_data[cur_item.uuid] = {
+			"name": cur_item.objects[0].name,
+			"sprite": texture
+		}
+		item_sprite.texture = texture
+	
+	return item_sprite
+
 
 
 	# CURSOR
@@ -448,12 +536,13 @@ func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this w
 	#for node: Node in detail_container.get_children(): # Clear previous selection
 		#node.queue_free()
 	
-	if ball:
-		act_label.text = "Ball UID " + str(ball.uid) + " selected!"
+	if ball: # Selected something
 		selected_goo = true
-		if hovering_item: 
-			selected_item = true
-			sel_item = items.get_children()[data.items.find(ball)]
+		if items_toggled: # ITEM
+			sel_goo_sprite = items.get_children()[data.items.find(ball)]
+			new_undo("Item (" + item_uid_data[ball.type].name + ") selected!")
+		else: # BALL
+			new_undo(Globals.ball_details[ball.typeEnum].name + " ball (UID " + str(ball.uid) + ") selected!")
 		sel_goo = ball
 		
 			# DETAILS
@@ -464,19 +553,19 @@ func select_goo(ball: Variant = null) -> void: # Select goo - TODO - make this w
 				#detail_container.add_child(cur_det)
 				#cur_det.text = key
 		
-	else:
-		act_label.text = "Unselected ball"
+	else: # Unselected something
+		new_undo("Unselected " + "item" if items_toggled else "ball" + "! (UID " + str(sel_goo.uid) + " )")
 		selected_goo = false
-		selected_item = false
 
 
-		# - TERRAIN -
+
+		# TERRAIN
 	# Terrain group selected
 func _terrain_group_selected(index: int) -> void:
 	var group_id: int # Used for checking for balls from terrainBalls
 	
 	if index != 0: # User selected a specific terrain group
-		act_label.text = "Switched to terrain group " + str(index - 1)
+		new_undo("Switched to terrain group " + str(index - 1))
 		var ball: Dictionary
 		for ind: int in data.balls.size():
 			ball = data.balls[ind]
@@ -490,6 +579,6 @@ func _terrain_group_selected(index: int) -> void:
 					ball_uids[ball.uid].visible = false
 		
 	else: # User pressed show all
-		act_label.text = "Switched to all terrain groups! New terrain balls will default to group 0"
+		new_undo("Switched to all terrain groups! New terrain balls will default to group 0")
 		for ball: Dictionary in data.balls:
 			ball_uids[ball.uid].visible = true

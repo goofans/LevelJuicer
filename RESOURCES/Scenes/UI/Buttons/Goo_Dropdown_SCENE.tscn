@@ -1,11 +1,22 @@
-[gd_scene format=3 uid="uid://dnw3bypjqd8rm"]
+[gd_scene load_steps=6 format=3 uid="uid://dnw3bypjqd8rm"]
+
+[ext_resource type="StyleBox" uid="uid://d2w86c017w6s5" path="res://RESOURCES/Scenes/UI/Textures/Button_Focus_STYLEBOX.tres" id="1_54uh3"]
+[ext_resource type="StyleBox" uid="uid://nltkr0m052ed" path="res://RESOURCES/Scenes/UI/Textures/Button_Pressed_STYLEBOX.tres" id="2_gqfwx"]
+[ext_resource type="StyleBox" uid="uid://bincy5e1uv3bq" path="res://RESOURCES/Scenes/UI/Textures/Button_Disabled_STYLEBOX.tres" id="2_l876g"]
+[ext_resource type="StyleBox" uid="uid://bynvdrtq3db8e" path="res://RESOURCES/Scenes/UI/Textures/Button_Hover_STYLEBOX.tres" id="3_5kq7e"]
+[ext_resource type="StyleBox" uid="uid://cba3uo186hfxt" path="res://RESOURCES/Scenes/UI/Textures/Button_STYLEBOX.tres" id="4_shr8y"]
 
 [node name="Goo_DROPDOWN" type="OptionButton"]
-custom_minimum_size = Vector2(60, 0)
-anchors_preset = 10
-anchor_right = 1.0
-offset_right = -900.0
-offset_bottom = 40.0
+custom_minimum_size = Vector2(90, 65)
+offset_right = 67.0
+offset_bottom = 50.0
 tooltip_text = "Common Goo Ball"
 focus_mode = 1
-icon_alignment = 1
+theme_override_styles/focus = ExtResource("1_54uh3")
+theme_override_styles/disabled = ExtResource("2_l876g")
+theme_override_styles/hover_pressed = ExtResource("2_gqfwx")
+theme_override_styles/hover = ExtResource("3_5kq7e")
+theme_override_styles/pressed = ExtResource("2_gqfwx")
+theme_override_styles/normal = ExtResource("4_shr8y")
+expand_icon = true
+fit_to_longest_item = false

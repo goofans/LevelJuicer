@@ -1,7 +1,7 @@
 extends Node
 
 
-		# VARIABLES
+		# - VARIABLES -
 	# Data
 var ball_details: Array[Dictionary] = [ # Ball details based on enumType
 	{sprite = null}, # Empty 1
@@ -80,10 +80,49 @@ var ball_details: Array[Dictionary] = [ # Ball details based on enumType
 ]
 
 	# Resources
-var ball_template: Dictionary = JSON.parse_string(FileAccess.open("res://RESOURCES/Scenes/Balls/JSON/ball.json", FileAccess.READ).get_as_text())
+var ball_template: Dictionary = JSON.parse_string(FileAccess.open("res://RESOURCES/Scenes/Balls/JSON/Ball_JSON.json", FileAccess.READ).get_as_text())
+var item_template: Dictionary = JSON.parse_string(FileAccess.open("res://RESOURCES/Scenes/Items/JSON/Item_JSON.json", FileAccess.READ).get_as_text())
+
 var debug_texture: CompressedTexture2D = preload("res://Level_Juicer_ICON.png") # Debug texture
 var item_scene: PackedScene = preload("res://RESOURCES/Scenes/Items/Item_SCENE.tscn")
 
 	# UI
 var goo_button_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Goo_Button_SCENE.tscn")
+var goo_dropdown_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Goo_Dropdown_SCENE.tscn")
 var checkmark_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Checkmark_SCENE.tscn")
+
+
+	# Items
+var item_groups: Dictionary = {
+	"Hazards": { 
+		"icon": preload("res://RESOURCES/Scenes/UI/Textures/Hazards_ITEM_GROUP.png"),
+		"tooltip": "Things that slice, dice, burn, and generally kill goo",
+		"items": [
+			{"type": "d759dc7a-14f1-47b5-9d0d-3b1fec52a03a", "name": "GearBasic"}, # Gears
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+		]
+	},
+	
+	"Nature": {
+		"icon": preload("res://RESOURCES/Scenes/UI/Textures/Nature_ITEM_GROUP.png"),
+		"tooltip": "Flora and natural decor",
+		"items": [
+			{"type": "09053897-e05f-4e35-8ea2-30fd87805ba8", "name": "Bush1"},
+			{"type": "61af9272-4c9b-4c5e-9949-3661ffb87ab9", "name": "Cloud1"},
+			{"type": "61af9272-0402-4ab5-a8e3-b1fcc1096015", "name": "Cloud2"},
+			{"type": "059c2646-80d1-4c16-859b-2d5a0092a4c8", "name": "SignPainterSign"},
+			{"type": "61af9274-06c9-47bb-82e0-9b6094a0afb4", "name": "Pool"},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+			{"type": "", "name": ""},
+		]
+	}
+}

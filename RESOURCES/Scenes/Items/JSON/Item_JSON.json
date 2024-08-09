@@ -1,0 +1,28 @@
+{
+			"id": "",
+			"type": "61af9272-4c9b-4c5e-9949-3661ffb87ab9",
+			"localizedStringId": "",
+			"uid": 3151,
+			"pos": {
+				"x": 0,
+				"y": 0
+			},
+			"scale": {
+				"x": 1,
+				"y": 1
+			},
+			"rotation": 0,
+			"depth": 0,
+			"flipHorizontal": false,
+			"flipVertical": false,
+			"rotSpeed": 1,
+			"seed": 0,
+			"liquidType": 0,
+			"adapterBallId": 0,
+			"invisible": false,
+			"forcedRandomizationIndex": -1,
+			"particleEffectName": "",
+			"uid1": 0,
+			"uid2": 0,
+			"userVariables": []
+		}
