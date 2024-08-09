@@ -514,18 +514,24 @@ func new_item_sprite(item: Dictionary) -> Sprite2D: # Create sprite2D for item
 	item_sprite.rotation = -item.rotation
 	item_sprite.z_index = item.depth
 	
+	
+	
 		# ITEM FILE
 	file = FileAccess.open(game_path + "res/items/" + item.type + ".wog2", FileAccess.READ)
 	item_data = JSON.parse_string(file.get_as_text())
 	file = null
 	
 	for cur_item: Dictionary in item_data.items: # Loop through items
-		var texture: ImageTexture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(item_xml, cur_item.objects[0].name) + ".image")
+			# DRAWING
+		if Globals.item_draw_overrides.has(item.type): # Sprite to draw specified in autoload
+			item_sprite.texture = Globals.item_draw_overrides[item.type]
+		else: # Get item sprite
+			item_sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(item_xml, cur_item.objects[0].name) + ".image")
+		
 		item_uid_data[cur_item.uuid] = {
-			"name": cur_item.objects[0].name,
-			"sprite": texture
+			"name": cur_item.name,
+			"sprite": item_sprite.texture
 		}
-		item_sprite.texture = texture
 	
 	return item_sprite
 
