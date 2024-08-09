@@ -286,7 +286,7 @@ func _draw() -> void:
 		cur_color = Color.WHITE if !selected_goo or sel_goo.uid != item_data.uid else select_color
 		
 				# Cursor is not holding or hovering over any items
-		if (!holding_goo or line_mode) and !hovering_goo:
+		if (!holding_goo or line_mode) and !hovering_goo and !hovering_item:
 			dist_to_cur = mouse_pos.distance_to(sprite.global_position) # Get distance to mouse
 			
 				# Cursor is over item, be selected
@@ -330,18 +330,27 @@ func _process(_delta: float) -> void:
 		
 		# Is pressing right click
 	elif Input.is_action_pressed(&"Right_Click") and hovering_goo and !holding_goo:
-		var strands_2_free: Array[Dictionary] = []
-		
+				# DELETE
 			# Delete ball
-		for strand: Dictionary in data.strands: # Check all strands
-			if hovered_goo.uid == strand.ball1UID or hovered_goo.uid == strand.ball2UID: # strand
-				strands_2_free.append(strand)
-		for strand: Dictionary in strands_2_free: # Delete queued strands
-			data.strands.erase(strand)
-		
-		act_label.text = "Ball deleted!"
-		data.terrainBalls.erase(data.balls.find(hovered_goo)) # Remove from terrain balls
-		data.balls.erase(hovered_goo) # Erase goo ball
+		if !hovering_item:
+			var strands_2_free: Array[Dictionary] = []
+			
+				# Delete ball
+			for strand: Dictionary in data.strands: # Check all strands
+				if hovered_goo.uid == strand.ball1UID or hovered_goo.uid == strand.ball2UID: # strand
+					strands_2_free.append(strand)
+			for strand: Dictionary in strands_2_free: # Delete queued strands
+				data.strands.erase(strand)
+			
+			act_label.text = "Ball deleted!"
+			data.terrainBalls.erase(data.balls.find(hovered_goo)) # Remove from terrain balls
+			data.balls.erase(hovered_goo) # Erase goo ball
+			
+			# Delete item
+		else:
+			items.get_children()[data.items.find(hovered_goo)].free()
+			data.items.erase(hovered_goo)
+			act_label.text = "Item deleted!"
 	
 	queue_redraw()
 
