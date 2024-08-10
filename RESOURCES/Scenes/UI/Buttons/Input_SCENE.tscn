@@ -1,14 +1,34 @@
-[gd_scene format=3 uid="uid://cwb5ageum2gqv"]
+[gd_scene load_steps=4 format=3 uid="uid://cwb5ageum2gqv"]
 
-[node name="Input_SCENE" type="TextEdit"]
+[ext_resource type="Theme" uid="uid://dm2ug4t4xvo6c" path="res://RESOURCES/Scenes/UI/Juicy_THEME.tres" id="1_gm8cx"]
+[ext_resource type="Script" path="res://RESOURCES/Scenes/UI/Buttons/Input_CLASS.gd" id="2_51qsr"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e8j3i"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+
+[node name="Input_SCENE" type="VBoxContainer"]
+custom_minimum_size = Vector2(167, 66)
+offset_right = 165.0
+offset_bottom = 66.0
+theme = ExtResource("1_gm8cx")
+script = ExtResource("2_51qsr")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxEmpty_e8j3i")
+text = "Test"
+vertical_alignment = 1
+
+[node name="Input" type="TextEdit" parent="."]
 self_modulate = Color(2, 2, 2, 1)
-custom_minimum_size = Vector2(135, 35)
-anchors_preset = -1
-anchor_right = 0.212833
-anchor_bottom = 0.0914074
-offset_top = -1.0
-offset_right = -69.32
-offset_bottom = -15.36
-scale = Vector2(1.5, 1.5)
-text = "test"
+custom_minimum_size = Vector2(162, 25)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 3
+focus_mode = 1
+theme_override_font_sizes/font_size = 15
+placeholder_text = "Type Value"
 metadata/_edit_use_anchors_ = true

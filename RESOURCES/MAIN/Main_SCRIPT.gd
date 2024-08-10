@@ -19,6 +19,7 @@ var item_xml: XMLParser = XMLParser.new() # Parse XML resources
 
 	# ARRAYS - TODO - cache positions in ball UIDs for optimization?
 var ball_uids: Dictionary = {} # Ball details for visualizing in the editor
+var item_uids: Dictionary = {}
 var item_uid_data: Dictionary = {} # Fetch an items name with it's UID
 @onready var items: Node2D = $Items # Node2D that contains all item sprites
 
@@ -152,7 +153,10 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	
 		# ITEMS
 	for item: Dictionary in data.items: # Create all items
-		new_item_sprite(item)
+		var item_sprite: Sprite2D = new_item_sprite(item)
+		item_uids[item.uid] = {
+			"sprite" = item_sprite,
+		}
 	
 	
 	
@@ -533,9 +537,6 @@ func new_item_sprite(item: Dictionary) -> Sprite2D: # Create sprite2D for item
 
 	# CURSOR
 func select_goo(ball: Dictionary) -> void: # Select goo - TODO - make this work for items too
-	for node: Node in detail_container.get_children(): # Clear previous selection
-		node.queue_free()
-	
 	if ball: # Selected something
 		selected_goo = true
 		if items_toggled: # ITEM
@@ -546,16 +547,54 @@ func select_goo(ball: Dictionary) -> void: # Select goo - TODO - make this work 
 		sel_goo = ball
 		
 			# DETAILS
-		var cur_det: Label # Current detail
-		for key: String in ball.keys():
-			if ball[key] is bool:
-				cur_det = Globals.checkmark_scene.instantiate()
-				detail_container.add_child(cur_det)
-				cur_det.text = key
+		set_details()
 
 
 func set_details() -> void: # Create details
-	pass
+	for node: Node in detail_container.get_children(): # Clear previous selection
+		node.queue_free()
+	
+	var cur_det: VBoxContainer # Current detail
+	for key: String in sel_goo.keys():
+		if sel_goo[key] is bool:
+			cur_det = Globals.checkbox_scene.instantiate()
+			detail_container.add_child(cur_det)
+			cur_det.label.text = key
+			cur_det.checkbox.button_pressed = sel_goo[key]
+			
+			cur_det.checkbox.pressed.connect(set_from_checkbox.bind(cur_det.checkbox, key))
+			
+		elif sel_goo[key] is String or sel_goo[key] is float or sel_goo[key] is int:
+			cur_det = Globals.input_scene.instantiate()
+			detail_container.add_child(cur_det)
+			cur_det.label.text = key
+			cur_det.input.text = str(sel_goo[key])
+			
+			cur_det.input.text_changed.connect(set_from_input.bind(cur_det.input, key))
+
+
+func set_from_checkbox(node: CheckBox, key: String) -> void: # Set goo properties from checkbox
+	sel_goo[key] = node.button_pressed
+	update_goo_properties()
+
+func set_from_input(node: TextEdit, key: String) -> void: # Set goo properties from input
+	print(1)
+	if !node.text: return
+	print(2)
+	
+	if node.text.is_valid_float():
+		sel_goo[key] = float(node.text)
+		print(sel_goo[key])
+	elif node.text.is_valid_int():
+		sel_goo[key] = int(node.text)
+	else:
+		sel_goo[key] = node.text
+	update_goo_properties()
+
+func update_goo_properties() -> void: # Apply goo properties
+	if items_toggled:
+		if sel_goo.rotation is float or sel_goo.rotation is int: sel_goo_sprite.rotation = sel_goo.rotation
+		else: sel_goo.rotation = 0.0
 
 
 

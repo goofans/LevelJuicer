@@ -170,6 +170,7 @@ Panel/styles/panel = ExtResource("6_7lbe6")
 PopupMenu/styles/hover = SubResource("StyleBoxFlat_eniwf")
 PopupMenu/styles/panel = SubResource("StyleBoxFlat_fnexn")
 ScrollContainer/styles/panel = ExtResource("7_5jhw7")
+TextEdit/constants/outline_size = 10
 TextEdit/font_sizes/font_size = 20
 TextEdit/styles/focus = SubResource("StyleBoxFlat_17ego")
 TextEdit/styles/normal = SubResource("StyleBoxFlat_iln4i")

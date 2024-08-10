@@ -89,7 +89,9 @@ var item_scene: PackedScene = preload("res://RESOURCES/Scenes/Items/Item_SCENE.t
 	# UI
 var button_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Button_SCENE.tscn")
 var dropdown_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Dropdown_SCENE.tscn")
-var checkmark_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Checkmark_SCENE.tscn")
+
+var checkbox_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Checkbox_SCENE.tscn")
+var input_scene: PackedScene = preload("res://RESOURCES/Scenes/UI/Buttons/Input_SCENE.tscn")
 
 
 	# Items
@@ -98,7 +100,6 @@ var item_groups: Dictionary = {
 		"icon": preload("res://RESOURCES/Scenes/UI/Textures/Hazards_ITEM_GROUP.png"),
 		"tooltip": "Things that slice, dice, burn, and generally kill goo",
 		"items": [
-			#{"type": "d759dc7a-14f1-47b5-9d0d-3b1fec52a03a", "name": "GearBasic"}, # Decor gear
 			{"type": "8d5e7328-4a5d-4f11-a544-3835ced3e9ee", "name": "Gear1BlurWhite"},
 			{"type": "61af9273-0b95-4d67-86c9-d4f9d9f8313e", "name": "Gear1BlurGray"},
 			{"type": "61af9273-d9d0-4872-8304-4d11c41a5831", "name": "Gear1Blur"},
@@ -111,15 +112,15 @@ var item_groups: Dictionary = {
 		"items": [
 			{"type": "09053897-e05f-4e35-8ea2-30fd87805ba8", "name": "Bush1"},
 			{"type": "a5fd4181-ab99-4a1d-8165-e8d03522a873", "name": "BushUni"},
+			{"type": "4e0f27cc-0d6a-42af-aa1f-6dbaa7ca91cf", "name": "WoG Tree"},
 			{"type": "61af9272-4c9b-4c5e-9949-3661ffb87ab9", "name": "Cloud1"},
 			{"type": "61af9272-0402-4ab5-a8e3-b1fcc1096015", "name": "Cloud2"},
+			{"type": "4fd66c29-26f7-4d00-bbc2-139a3503ccc0", "name": "Cloud_Big1"},
 			{"type": "059c2646-80d1-4c16-859b-2d5a0092a4c8", "name": "Text Sign"},
 			{"type": "c70e624f-5997-4819-956c-f62a9ed8082b", "name": "Rocks"},
-			{"type": "4fd66c29-26f7-4d00-bbc2-139a3503ccc0", "name": "Cloud_Big1"},
-			{"type": "61af9273-a579-4819-9837-f3c4aa9a7efb", "name": "Liquid Spewing Pipe"},
 			{"type": "152347d8-ed08-47bc-9100-a1ccefcb3389", "name": "Chain Head"},
 			{"type": "00826534-fe3c-4ccb-b906-c95f06bf3fc4", "name": "Chain Head Totem"},
-			{"type": "4e0f27cc-0d6a-42af-aa1f-6dbaa7ca91cf", "name": "WogTree"}
+			{"type": "e7fbef52-8d83-405e-8ab0-9ce2cc80bfd4", "name": "Barnacles"},
 		]
 	},
 	
@@ -136,6 +137,8 @@ var item_groups: Dictionary = {
 			{"type": "e0e98b9b-966d-4fad-9c43-147eff564f50", "name": "Frictionless Terrain"},
 			{"type": "a4c50af4-f8fe-4949-af55-338d9d74bb56", "name": "Water Level"},
 			{"type": "61af9274-06c9-47bb-82e0-9b6094a0afb4", "name": "Liquid Pool"},
+			{"type": "61af9273-a579-4819-9837-f3c4aa9a7efb", "name": "Liquid Spewing Pipe"},
+			{"type": "cef7aa08-0ec1-4066-8546-69d08c255acd", "name": "Liquid drain"},
 		]
 	}
 }

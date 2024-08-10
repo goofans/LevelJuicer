@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://dp6oitok6nin8"]
+
+[ext_resource type="Script" path="res://RESOURCES/Scenes/UI/Buttons/Checkbox_SCENE.gd" id="1_frpfl"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lmk81"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_j6wxk"]
+content_margin_left = 10.0
+
+[node name="Checkbox_SCENE" type="VBoxContainer"]
+custom_minimum_size = Vector2(167, 0)
+offset_right = 158.0
+offset_bottom = 56.0
+script = ExtResource("1_frpfl")
+
+[node name="Label" type="Label" parent="."]
+custom_minimum_size = Vector2(135, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxEmpty_lmk81")
+text = "test"
+autowrap_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Checkbox" type="CheckBox" parent="."]
+self_modulate = Color(2, 2, 2, 1)
+layout_mode = 2
+focus_mode = 1
+theme_override_styles/focus = SubResource("StyleBoxEmpty_j6wxk")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_j6wxk")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_j6wxk")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_j6wxk")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_j6wxk")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_j6wxk")
+metadata/_edit_use_anchors_ = true

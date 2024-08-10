@@ -1,10 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://cb8vqv6l8psj8"]
+[gd_scene load_steps=11 format=3 uid="uid://cb8vqv6l8psj8"]
 
 [ext_resource type="Script" path="res://RESOURCES/MAIN/Main_SCRIPT.gd" id="1_x4mmc"]
 [ext_resource type="Theme" uid="uid://dm2ug4t4xvo6c" path="res://RESOURCES/Scenes/UI/Juicy_THEME.tres" id="2_0eg1q"]
-[ext_resource type="PackedScene" uid="uid://dp6oitok6nin8" path="res://RESOURCES/Scenes/UI/Buttons/Checkmark_SCENE.tscn" id="3_0gmp4"]
 [ext_resource type="PackedScene" uid="uid://sxdcx0oleo14" path="res://RESOURCES/Scenes/UI/Buttons/Button_SCENE.tscn" id="3_eb66t"]
-[ext_resource type="PackedScene" uid="uid://cwb5ageum2gqv" path="res://RESOURCES/Scenes/UI/Buttons/Input_SCENE.tscn" id="4_egg4q"]
 [ext_resource type="Texture2D" uid="uid://irpxtcvjo2ji" path="res://RESOURCES/Scenes/UI/Textures/Line_Mode_SPRITE.png" id="4_udib4"]
 [ext_resource type="Texture2D" uid="uid://bmu5q2vw43oil" path="res://RESOURCES/Scenes/UI/Textures/Hide_Items_SPRITE.png" id="5_535b2"]
 [ext_resource type="Texture2D" uid="uid://hn7b70828uv4" path="res://RESOURCES/Scenes/UI/Textures/Delete_Group_TEXTURE.png" id="6_dmt7c"]
@@ -68,14 +66,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fyquw")
 
 [node name="V_Box_CONTAINER" type="VBoxContainer" parent="Control_LAYER/Control/Info_PANEL/Scroll_CONTAINER"]
 layout_mode = 2
-theme_override_constants/separation = 5
 alignment = 1
-
-[node name="Checkmark_SCENE" parent="Control_LAYER/Control/Info_PANEL/Scroll_CONTAINER/V_Box_CONTAINER" instance=ExtResource("3_0gmp4")]
-layout_mode = 2
-
-[node name="Input_SCENE" parent="Control_LAYER/Control/Info_PANEL/Scroll_CONTAINER/V_Box_CONTAINER" instance=ExtResource("4_egg4q")]
-layout_mode = 2
 
 [node name="Ball_PANEL" type="Panel" parent="Control_LAYER/Control"]
 layout_mode = 1
@@ -270,6 +261,18 @@ theme_override_font_sizes/font_size = 25
 text = "Error output"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Focus_Stealer" type="Control" parent="Control_LAYER/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 153.0
+offset_top = 99.0
+offset_right = -182.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 1
 
 [node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(0.5, 0.5)
