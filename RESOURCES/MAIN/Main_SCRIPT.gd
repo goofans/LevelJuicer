@@ -1,7 +1,8 @@
 extends Node2D
 
 		# NOTE #
-	# There is no justification for how the code is written, I am sorry
+	# Originally I wrote an explanation for why the code looks like this
+	# but there is no justification for how the code is written, I am sorry
 
 
 		# - VARIABLES -
@@ -34,7 +35,7 @@ var select_color: Color = Color("ffa596") # Selection color for modulating
 
 	# MOUSE - TODO - add multi selection
 var sel_goo: Dictionary # Selected goo
-var sel_goo_sprite: Sprite2D # Selected item sprite2D node
+var sel_goo_sprite: Node2D # Selected item sprite2D node
 var held_goo: Dictionary # Currently held goo
 var hovered_goo: Dictionary # Currently hovered goo
 
@@ -44,12 +45,15 @@ var selected_goo: bool = false # If a goo ball is currently selected
 
 var items_toggled: bool = false # If currently editing items
 
-var zoom: float = 60.0 # Camera zoom
+var zoom: float = 19.05 # Camera zoom
 var cur_dir: Vector2 = Vector2.ZERO # Cursor direction
 @onready var camera: Camera2D = $Camera # Camera
 var mouse_pos: Vector2 = Vector2.ZERO # Cursor position
 
 var line_mode: bool = false # Is drawing lines
+@onready var line_button: Button = $Control_LAYER/Control/Tool_PANEL/Toolbar_CONTAINER/Line_BUTTON
+var line_icon: CompressedTexture2D = preload("res://RESOURCES/Scenes/UI/Textures/Line_Mode_SPRITE.png")
+var rotate_icon: CompressedTexture2D = preload("res://RESOURCES/Scenes/UI/Textures/Rotate_Item_TEXTURE.png")
 
 
 	# UI
@@ -60,6 +64,8 @@ var line_mode: bool = false # Is drawing lines
 @onready var proj_name: Label = $Control_LAYER/Control/Name_LABEL # Name of the level
 @onready var act_label: Label = $Control_LAYER/Control/Action_LABEL
 @onready var detail_container: VBoxContainer = $Control_LAYER/Control/Info_PANEL/Scroll_CONTAINER/V_Box_CONTAINER
+
+@onready var focus_stealer: Control = $Control_LAYER/Control/Focus_Stealer
 
 @onready var terrain_groups: OptionButton = $Control_LAYER/Control/Tool_PANEL/Terrain_Groups_DROPDOWN
 var item_sprites: Array[Node]
@@ -153,7 +159,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 	
 		# ITEMS
 	for item: Dictionary in data.items: # Create all items
-		var item_sprite: Sprite2D = new_item_sprite(item)
+		var item_sprite: Node2D = new_item_sprite(item)
 		item_uids[item.uid] = {
 			"sprite" = item_sprite,
 		}
@@ -209,13 +215,21 @@ func _draw() -> void: # Draw every frame
 		# INPUT WITH DRAWING
 	if holding_goo:
 			# DRAG MODE
-		if !line_mode or items_toggled:
+		if !line_mode:
 			held_goo.pos.x = mouse_pos.x / zoom # Move goo with cursor
 			held_goo.pos.y = -mouse_pos.y / zoom
 			
 			if items_toggled: sel_goo_sprite.position = mouse_pos # Update item sprite
 			
 			if !Input.is_action_pressed(&"Click"): # No longer holding goo
+				holding_goo = false
+			
+			# ROTATE ITEM MDOE
+		elif items_toggled:
+			sel_goo_sprite.look_at(mouse_pos)
+			sel_goo.rotation = -sel_goo_sprite.rotation
+			
+			if !Input.is_action_pressed(&"Click"):
 				holding_goo = false
 			
 			# LINE MODE
@@ -278,12 +292,12 @@ func _draw() -> void: # Draw every frame
 		# ITEMS
 	if items_toggled: # If editing items
 		item_sprites = items.get_children() # Get all item sprites
-		var sprite: Sprite2D
+		var sprite: Node2D
 		var item_data: Dictionary
 		
 		for index: int in item_sprites.size():
-			sprite = item_sprites[index]
-			item_data = data.items[index]
+			sprite = item_sprites[index] # Get current item in loop
+			item_data = data.items[index] # Get item's data
 			
 				# Check if currently selected item
 			cur_color = Color.WHITE if !selected_goo or sel_goo.uid != item_data.uid else select_color
@@ -293,13 +307,13 @@ func _draw() -> void: # Draw every frame
 				dist_to_cur = mouse_pos.distance_to(sprite.global_position) # Get distance to mouse
 				
 					# Cursor is over item, be selected
-				if dist_to_cur < 50.0:
+				if dist_to_cur < 70.0:
 						# Set as hovered item
 					cur_color = select_color
 					hovered_goo = item_data
 					hovering_goo = true
 			
-			sprite.self_modulate = cur_color
+			sprite.modulate = cur_color
 
 
 	# Process every frame
@@ -307,54 +321,55 @@ func _process(_delta: float) -> void:
 	mouse_pos = get_global_mouse_position()
 	
 		# Cursor control
-	cur_dir.x = Input.get_axis(&"Left", &"Right")
-	cur_dir.y = Input.get_axis(&"Up", &"Down")
-	if cur_dir:
-		camera.position += cur_dir * 2.0
-	
-	
-			# INPUT
-		# Presing click
-	if Input.is_action_pressed(&"Click"):
-		if hovering_goo:
-				# Just pressed left click
-			if Input.is_action_just_pressed(&"Click"):
-				held_goo = hovered_goo
-				hovering_goo = false
-				holding_goo = true
-				select_goo(hovered_goo)
+	if focus_stealer.has_focus():
+		cur_dir.x = Input.get_axis(&"Left", &"Right")
+		cur_dir.y = Input.get_axis(&"Up", &"Down")
+		if cur_dir:
+			camera.position += cur_dir * 2.0
 		
 		
-		# Is pressing right click
-	elif Input.is_action_pressed(&"Right_Click") and hovering_goo and !holding_goo:
-				# DELETE
-			# Delete ball
-		if !items_toggled:
-			var strands_2_free: Array[Dictionary] = []
+				# INPUT
+			# Presing click
+		if Input.is_action_pressed(&"Click"):
+			if hovering_goo:
+					# Just pressed left click
+				if Input.is_action_just_pressed(&"Click"):
+					held_goo = hovered_goo
+					hovering_goo = false
+					holding_goo = true
+					select_goo(hovered_goo)
 			
+			
+			# Is pressing right click
+		elif Input.is_action_pressed(&"Right_Click") and hovering_goo and !holding_goo:
+					# DELETE
 				# Delete ball
-			for strand: Dictionary in data.strands: # Check all strands
-				if hovered_goo.uid == strand.ball1UID or hovered_goo.uid == strand.ball2UID: # strand
-					strands_2_free.append(strand)
-			for strand: Dictionary in strands_2_free: # Delete queued strands
-				data.strands.erase(strand)
-			
-			new_undo("Ball deleted!")
-			data.terrainBalls.erase(data.balls.find(hovered_goo)) # Remove from terrain balls
-			data.balls.erase(hovered_goo) # Erase goo ball
-			
-			# Delete item
-		else:
-			items.get_children()[data.items.find(hovered_goo)].free()
-			data.items.erase(hovered_goo)
-			new_undo("Item (" + item_uid_data[hovered_goo.type].name + ") deleted!")
+			if !items_toggled:
+				var strands_2_free: Array[Dictionary] = []
+				
+					# Delete ball
+				for strand: Dictionary in data.strands: # Check all strands
+					if hovered_goo.uid == strand.ball1UID or hovered_goo.uid == strand.ball2UID: # strand
+						strands_2_free.append(strand)
+				for strand: Dictionary in strands_2_free: # Delete queued strands
+					data.strands.erase(strand)
+				
+				new_undo("Ball deleted!")
+				data.terrainBalls.erase(data.balls.find(hovered_goo)) # Remove from terrain balls
+				data.balls.erase(hovered_goo) # Erase goo ball
+				
+				# Delete item
+			else:
+				items.get_children()[data.items.find(hovered_goo)].free()
+				data.items.erase(hovered_goo)
+				new_undo("Item (" + item_uid_data[hovered_goo.type].name + ") deleted!")
 	
 	queue_redraw()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 		# MOUSE
-	if event is InputEventMouseButton:
+	if focus_stealer.has_focus() and event is InputEventMouseButton:
 			# ZOOM
 		var pre_zoom: float = zoom
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP: # Zoom in
@@ -365,7 +380,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 			# ITEMS
 		if pre_zoom != zoom: # Zoom was changed
-			var item: Sprite2D
+			var item: Node2D
 			var items_nodes: Array[Node] = items.get_children()
 			var item_data: Dictionary
 			
@@ -405,7 +420,7 @@ func new_undo(text: String) -> void: # Sets last detailed action
 	# MODES
 func _line_mode_pressed() -> void: # Switched to line mode
 	line_mode = !line_mode
-	new_undo("Toggled line mode to " + str(line_mode))
+	new_undo("Toggled " + ("rotation" if items_toggled else "line") + " mode to " + str(line_mode))
 
 func _hide_mode_pressed() -> void:
 	items.visible = !items.visible
@@ -484,10 +499,13 @@ func new_item(group: String, id: int) -> void:
 
 func _edit_mode_swapped() -> void: # Swapped to different edit mode
 	items_toggled = !items_toggled
+	line_mode = false
 	new_undo("Toggled editing items to " + str(items_toggled))
 	
 		# SWAP GOO/ITEM BAR
 	if items_toggled: # Items toggled on
+		line_button.icon = rotate_icon
+		line_button.tooltip_text = "Toggle rotation mode"
 		for button: Button in ball_buttons:
 			goo_container.remove_child(button)
 		for button: OptionButton in item_dropdowns:
@@ -495,6 +513,8 @@ func _edit_mode_swapped() -> void: # Swapped to different edit mode
 		
 		# Items toggled off
 	else:
+		line_button.icon = line_icon
+		line_button.tooltip_text = "Toggle line mode"
 		for button: OptionButton in item_dropdowns:
 			goo_container.remove_child(button)
 		for button: Button in ball_buttons:
@@ -502,36 +522,55 @@ func _edit_mode_swapped() -> void: # Swapped to different edit mode
 
 
 func new_item_sprite(item: Dictionary) -> Sprite2D: # Create sprite2D for item
-	var item_sprite: Sprite2D
+	var item_group: Node2D # Item itself
+	var item_sprite: Sprite2D # Item objects
 	var item_data: Dictionary # Item name from .wog2
 	
-	item_sprite = Globals.item_scene.instantiate() # Create item
-	items.add_child(item_sprite)
-	item_sprite.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.005 # Set item properties
-	item_sprite.position = Vector2(item.pos.x, -item.pos.y) * zoom
-	item_sprite.rotation = -item.rotation
-	item_sprite.z_index = item.depth
-	
+	item_group = Node2D.new() # Create item
+	items.add_child(item_group)
+	item_group.scale = Vector2(item.scale.x, item.scale.y) * zoom * 0.005 # Set item properties
+	item_group.global_position = Vector2(item.pos.x, -item.pos.y) * zoom
+	item_group.rotation = -item.rotation
+	item_group.z_index = item.depth
 	
 	
 		# ITEM FILE
 	file = FileAccess.open(game_path + "res/items/" + item.type + ".wog2", FileAccess.READ)
 	item_data = JSON.parse_string(file.get_as_text())
 	file = null
+	#var color: int
 	
 	for cur_item: Dictionary in item_data.items: # Loop through items
-			# DRAWING
-		if Globals.item_draw_overrides.has(item.type): # Sprite to draw specified in autoload
-			item_sprite.texture = Globals.item_draw_overrides[item.type]
-		else: # Get item sprite
-			item_sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(item_xml, cur_item.objects[0].name) + ".image")
+		for object in cur_item.objects:
+			item_sprite = Globals.item_scene.instantiate() # Create object
+			item_group.add_child(item_sprite)
+			
+			#color = object.color
+			#item_sprite.modulate = Color(
+				#((color & 0x00FF0000) >> 16) / 255.0, 
+				#(color & 0x0000FF00) / 255.0, 
+				#((color & 0x000000FF) << 16) / 255.0,
+				#(color & 0xFF000000) / 255.0,
+			#)
+			item_sprite.z_index = object.depthOffset
+			
+				# DRAWING
+			if Globals.item_draw_overrides.has(cur_item.uuid): # Sprite to draw specified in autoload
+				item_sprite.texture = Globals.item_draw_overrides[cur_item.uuid]
+			else: # Get item sprite
+				item_sprite.texture = BOY_IMAGE.convert_texture(game_path + "res/items/images/" + XML_FINDER.find_xml_value(item_xml, object.name) + ".image")
+			
+			item_sprite.position = Vector2( # Set object position
+				-object.position.x, object.position.y
+			) * zoom
+			item_sprite.scale = Vector2(object.scale.x, object.scale.y) * zoom * 0.05
+			item_sprite.rotation = -object.rotation
 		
 		item_uid_data[cur_item.uuid] = {
 			"name": cur_item.name,
-			"sprite": item_sprite.texture
 		}
 	
-	return item_sprite
+	return item_group
 
 
 
@@ -593,7 +632,7 @@ func set_from_input(node: TextEdit, key: String) -> void: # Set goo properties f
 
 func update_goo_properties() -> void: # Apply goo properties
 	if items_toggled:
-		if sel_goo.rotation is float or sel_goo.rotation is int: sel_goo_sprite.rotation = sel_goo.rotation
+		if sel_goo.rotation is float or sel_goo.rotation is int: sel_goo_sprite.rotation = -sel_goo.rotation
 		else: sel_goo.rotation = 0.0
 
 

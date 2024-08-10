@@ -48,6 +48,7 @@ anchor_bottom = 1.0
 offset_left = -182.0
 grow_horizontal = 0
 grow_vertical = 2
+focus_mode = 1
 
 [node name="Scroll_CONTAINER" type="ScrollContainer" parent="Control_LAYER/Control/Info_PANEL"]
 layout_mode = 1
@@ -75,6 +76,7 @@ anchor_right = 1.0
 offset_right = -182.0
 offset_bottom = 100.0
 grow_horizontal = 2
+focus_mode = 1
 
 [node name="Swap_Edit_BUTTON" parent="Control_LAYER/Control/Ball_PANEL" instance=ExtResource("3_eb66t")]
 custom_minimum_size = Vector2(95, 85)
@@ -144,6 +146,7 @@ anchor_bottom = 1.0
 offset_top = 100.0
 offset_right = 153.0
 grow_vertical = 2
+focus_mode = 1
 
 [node name="Toolbar_CONTAINER" type="VBoxContainer" parent="Control_LAYER/Control/Tool_PANEL"]
 layout_mode = 1
@@ -184,7 +187,8 @@ selected = 0
 item_count = 1
 popup/item_0/text = "Show all"
 
-[node name="Save_BUTTON_3" type="Button" parent="Control_LAYER/Control/Tool_PANEL"]
+[node name="Delete_Group_BUTTON" type="Button" parent="Control_LAYER/Control/Tool_PANEL"]
+visible = false
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 1
 anchors_preset = -1
@@ -200,7 +204,8 @@ icon = ExtResource("6_dmt7c")
 icon_alignment = 1
 metadata/_edit_use_anchors_ = true
 
-[node name="Save_BUTTON_4" type="Button" parent="Control_LAYER/Control/Tool_PANEL"]
+[node name="Add_Group_BUTTON" type="Button" parent="Control_LAYER/Control/Tool_PANEL"]
+visible = false
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 1
 anchors_preset = -1
@@ -318,7 +323,6 @@ access = 2
 [connection signal="pressed" from="Control_LAYER/Control/Tool_PANEL/Toolbar_CONTAINER/Line_BUTTON" to="." method="_line_mode_pressed"]
 [connection signal="pressed" from="Control_LAYER/Control/Tool_PANEL/Toolbar_CONTAINER/Hide_BUTTON" to="." method="_hide_mode_pressed"]
 [connection signal="item_selected" from="Control_LAYER/Control/Tool_PANEL/Terrain_Groups_DROPDOWN" to="." method="_terrain_group_selected"]
-[connection signal="pressed" from="Control_LAYER/Control/Tool_PANEL/Save_BUTTON_3" to="." method="_Save_Pressed"]
 [connection signal="canceled" from="Level_FILE" to="." method="_file_select_canceled"]
 [connection signal="file_selected" from="Level_FILE" to="." method="_Level_Selected"]
 [connection signal="index_pressed" from="Load_POPUP" to="." method="_popup_index_pressed"]
