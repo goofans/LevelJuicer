@@ -49,6 +49,7 @@ var zoom: float = 19.05 # Camera zoom
 var cur_dir: Vector2 = Vector2.ZERO # Cursor direction
 @onready var camera: Camera2D = $Camera # Camera
 var mouse_pos: Vector2 = Vector2.ZERO # Cursor position
+var mouse_viewport_pos: Vector2 = Vector2.ZERO # Cursor position in the viewport
 
 var line_mode: bool = false # Is drawing lines
 @onready var line_button: Button = $Control_LAYER/Control/Tool_PANEL/Toolbar_CONTAINER/Line_BUTTON
@@ -186,7 +187,7 @@ func _Level_Selected(path: String) -> void: # User selected a level
 		terrain_groups.add_icon_item(terrain_icon, "Group " + str(index))
 	
 	proj_name.text = data.title # Set level name
-	new_undo("Level loaded successfully! RMB - delete | Scroll - zoom | WASD - move")
+	new_undo("Level loaded successfully! RMB - delete | Scroll - zoom | WASD - move | MMB - pan")
 
 
 
@@ -318,16 +319,18 @@ func _draw() -> void: # Draw every frame
 
 	# Process every frame
 func _process(_delta: float) -> void:
-	mouse_pos = get_global_mouse_position()
 	
+	mouse_pos = get_global_mouse_position()
 		# Cursor control
 	if focus_stealer.has_focus():
 		cur_dir.x = Input.get_axis(&"Left", &"Right")
 		cur_dir.y = Input.get_axis(&"Up", &"Down")
 		if cur_dir:
 			camera.position += cur_dir * 2.0
-		
-		
+		if Input.is_action_pressed(&"Middle_Click"):
+			var zoom_coefficient = zoom * 0.023 # Number to multiply by zoom to ensure smooth panning
+			camera.position -= (get_viewport().get_mouse_position() - mouse_viewport_pos) * 1/camera.zoom.x
+		mouse_viewport_pos = get_viewport().get_mouse_position()
 				# INPUT
 			# Presing click
 		if Input.is_action_pressed(&"Click"):
